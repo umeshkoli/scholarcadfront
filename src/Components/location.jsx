@@ -20,13 +20,20 @@ export default function HybridLocation({ onLocation }) {
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    const cached = sessionStorage.getItem(STORAGE_KEY);
+    // Check localStorage first, then sessionStorage
+    let cached = null;
+    try {
+      cached = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
+    } catch (e) {}
+
     if (cached) {
-      const loc = JSON.parse(cached);
-      setLocation(loc);
-      setLoading(false);
-      if (onLocation) onLocation(loc);
-      return;
+      try {
+        const loc = JSON.parse(cached);
+        setLocation(loc);
+        setLoading(false);
+        if (onLocation) onLocation(loc);
+        return;
+      } catch (e) {}
     }
     //  API Rate Limit (900 hits per 24 hours)
     const RATE_KEY = "location_api_hits";
@@ -42,44 +49,67 @@ export default function HybridLocation({ onLocation }) {
       sessionStorage.setItem(RATE_TIME_KEY, now.toString());
       console.log(" Rate-limit reset: starting new 24-hour cycle.");
     } else {
-      // If limit reached → stop API call
+      // If limit reached → stop API call and fallback to default
       if (prevHits >= RATE_LIMIT) {
-        console.log(
-          ` API hit limit reached (${prevHits}/${RATE_LIMIT}). No more IP lookups until reset.`
-        );
+        const fallback = {
+          source: "default",
+          country: "India",
+          state: "Delhi",
+          city: "New Delhi",
+          raw: { country: "IN" },
+        };
+        setLocation(fallback);
         setLoading(false);
+        if (onLocation) onLocation(fallback);
         return;
       }
     }
     // Allowed → increase hit count
     const newCount = prevHits + 1;
     sessionStorage.setItem(RATE_KEY, newCount.toString());
-    // console.log(` IP API Hit Count: ${newCount}/${RATE_LIMIT}`);
-    // Try IP-based detection
+
+    // Try IP-based detection with immediate timeout
     (async () => {
       try {
         setStatus("Detecting location via IP...");
-        const res = await fetch(IP_LOOKUP_URL);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const res = await fetch(IP_LOOKUP_URL, { signal: controller.signal });
+        clearTimeout(timeoutId);
         if (!res.ok) throw new Error("IP lookup failed");
         const data = await res.json();
         const ipLocation = {
           source: "ip",
           ip: data?.ip || "",
-          country: data?.country_name || "",
+          country: data?.country_name || "India",
           state: data?.region || "",
           city: data?.city || "",
-          raw: data,
+          raw: data || { country: "IN" },
         };
         setLocation(ipLocation);
-        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(ipLocation));
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(ipLocation));
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(ipLocation));
+        } catch (e) {}
         setStatus("IP-based location detected");
         setLoading(false);
         if (onLocation) onLocation(ipLocation);
       } catch (err) {
-        console.warn("IP detection failed, forcing user location...");
-        // IP detection failed, force modal
-        // setShowModal(true);
+        // Fallback default
+        const fallback = {
+          source: "default",
+          country: "India",
+          state: "Delhi",
+          city: "New Delhi",
+          raw: { country: "IN" },
+        };
+        setLocation(fallback);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
+          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(fallback));
+        } catch (e) {}
         setLoading(false);
+        if (onLocation) onLocation(fallback);
       }
     })();
   }, [onLocation]);

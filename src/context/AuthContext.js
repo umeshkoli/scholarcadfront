@@ -143,6 +143,14 @@ export const AuthProvider = ({ children }) => {
 
     const fetchCategories = async (authToken = token, isRetry = false) => {
       if (!authToken) return;
+      // Skip fetch if categories already cached in memory or localStorage
+      try {
+        const cached = localStorage.getItem("categories");
+        if (cached && categories.length > 0 && !isRetry) {
+          return;
+        }
+      } catch (e) {}
+
       try {
         const res = await fetch(
           `${API_BASE_URL}${APIENDPOINTS.COURSE_CATEGORIES}`,
@@ -158,6 +166,12 @@ export const AuthProvider = ({ children }) => {
             }),
           },
         );
+
+        // If rate-limited (429), gracefully abort without looping
+        if (res.status === 429) {
+          console.warn("Categories API rate-limited (429). Using cached data.");
+          return;
+        }
 
         // Handle expired or invalid token by refreshing and retrying once
         if (res.status === 401 && !isRetry) {
@@ -196,9 +210,23 @@ export const AuthProvider = ({ children }) => {
     };
   }, [token, active_country]);
 
-  const [countryLists, setcoutryLists] = useState([]);
+  const [countryLists, setcoutryLists] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("country_lists");
+        return saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
+
   useEffect(() => {
     if (!token) return;
+    // Skip network request if already cached
+    if (countryLists && countryLists.length > 0) return;
+
     let isCancelled = false;
     const FetchCountryList = async () => {
       try {
@@ -210,16 +238,18 @@ export const AuthProvider = ({ children }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (res.status === 401) {
+        if (res.status === 401 || res.status === 429) {
           return;
         }
         if (!res.ok) {
-          setcoutryLists([]);
           return;
         }
         const data = await res.json();
-        if (!isCancelled) {
-          setcoutryLists(data?.data || []);
+        if (!isCancelled && data?.data) {
+          setcoutryLists(data.data);
+          try {
+            localStorage.setItem("country_lists", JSON.stringify(data.data));
+          } catch (e) {}
         }
       } catch (err) {
         console.error("Error fetching CountryList:", err);
@@ -231,9 +261,23 @@ export const AuthProvider = ({ children }) => {
     };
   }, [token]);
 
-  const [promoList, setPromoList] = useState(null);
+  const [promoList, setPromoList] = useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = sessionStorage.getItem("promo_list");
+        return saved ? JSON.parse(saved) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
+
   useEffect(() => {
     if (!token) return;
+    // Skip network request if already cached in session
+    if (promoList && promoList.length > 0) return;
+
     let isCancelled = false;
     const Fetchpromo = async () => {
       try {
@@ -245,17 +289,19 @@ export const AuthProvider = ({ children }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        if (res.status === 401) {
+        if (res.status === 401 || res.status === 429) {
           return;
         }
         if (!res.ok) {
           console.warn("HTTP error! Status:", res.status);
-          setPromoList(null);
           return;
         }
         const data = await res.json();
         if (!isCancelled && data?.data?.length > 0) {
           setPromoList(data.data);
+          try {
+            sessionStorage.setItem("promo_list", JSON.stringify(data.data));
+          } catch (e) {}
         }
       } catch (err) {
         console.error("Error fetching promoList:", err);

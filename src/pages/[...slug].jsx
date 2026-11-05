@@ -477,9 +477,18 @@ function DynamicPage({
   const [testimonialList, setTestimonialList] = useState([]);
   const [activeSlidetestimonials, setActiveSlidetestimonials] = useState(0);
 
-  // Fetch testimonials whenever token, url_title, or location changes
+  // Fetch testimonials with session cache and rate-limit guard
   useEffect(() => {
     if (!token || !url_title) return;
+    const cacheKey = `testimonials_${url_title}_${active_country || "in"}`;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        setTestimonialList(JSON.parse(cached));
+        return;
+      }
+    } catch (e) {}
+
     const fetchTestimonials = async () => {
       try {
         const res = await fetch(
@@ -499,18 +508,19 @@ function DynamicPage({
             }),
           },
         );
-        if (!res.ok) {
+        if (res.status === 429 || !res.ok) {
           console.warn("HTTP error! Status:", res?.status);
-          setTestimonialList([]);
           return;
         }
         const data = await res.json();
-        setTestimonialList(data?.data?.slice(0, 10) || []);
+        const list = data?.data?.slice(0, 10) || [];
+        setTestimonialList(list);
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify(list));
+        } catch (e) {}
         setActiveSlidetestimonials(0);
       } catch (err) {
         console.error("Error fetching testimonials:", err);
-        setTestimonialList([]);
-        setActiveSlidetestimonials(0);
       }
     };
     fetchTestimonials();
@@ -2260,20 +2270,30 @@ function DynamicPage({
   const [citylist, setcitylist] = useState([]);
   useEffect(() => {
     if (!token) return;
-    const fetchcity = async () => {
-      const cleanCountry =
-        active_country
-          ?.replace(/[^a-zA-Z]/g, "")
-          ?.trim()
-          ?.toUpperCase() || null;
+    const cleanCountry =
+      active_country
+        ?.replace(/[^a-zA-Z]/g, "")
+        ?.trim()
+        ?.toUpperCase() || "IN";
 
-      const cleanState =
-        active_state
-          ?.replace(/[^a-zA-Z ]/g, " ")
-          ?.replace(/\s+/g, " ")
-          ?.trim()
-          ?.toLowerCase()
-          ?.replace(/\b\w/g, (c) => c.toUpperCase()) || null;
+    const cleanState =
+      active_state
+        ?.replace(/[^a-zA-Z ]/g, " ")
+        ?.replace(/\s+/g, " ")
+        ?.trim()
+        ?.toLowerCase()
+        ?.replace(/\b\w/g, (c) => c.toUpperCase()) || null;
+
+    const cacheKey = `citylist_${cleanCountry}_${cleanState || "all"}`;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        setcitylist(JSON.parse(cached));
+        return;
+      }
+    } catch (e) {}
+
+    const fetchcity = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.CITY_LIST}`, {
           method: "POST",
@@ -2287,40 +2307,48 @@ function DynamicPage({
             state_id: cleanState || null,
           }),
         });
-        if (!res.ok) {
-          setcitylist([]);
+        if (res.status === 429 || !res.ok) {
           return;
         }
         const data = await res.json();
-        // console.log("CITY list:", data?.data);
-        setcitylist(data?.data || []);
-      } catch (err) {
-        // console.error("Error  :", err);
-      }
+        const list = data?.data || [];
+        setcitylist(list);
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify(list));
+        } catch (e) {}
+      } catch (err) {}
     };
     fetchcity();
   }, [token, active_country, active_state]);
 
   const [statelist, setstatelist] = useState([]);
-  // console.log("statelist",statelist);
-  // console.log("city",citylist);
 
   useEffect(() => {
     if (!token) return;
-    const fetchcity = async () => {
-      const cleanCountry =
-        active_country
-          ?.replace(/[^a-zA-Z]/g, "")
-          ?.trim()
-          ?.toUpperCase() || null;
+    const cleanCountry =
+      active_country
+        ?.replace(/[^a-zA-Z]/g, "")
+        ?.trim()
+        ?.toUpperCase() || "IN";
 
-      const cleanState =
-        active_state
-          ?.replace(/[^a-zA-Z ]/g, " ")
-          ?.replace(/\s+/g, " ")
-          ?.trim()
-          ?.toLowerCase()
-          ?.replace(/\b\w/g, (c) => c.toUpperCase()) || null;
+    const cleanState =
+      active_state
+        ?.replace(/[^a-zA-Z ]/g, " ")
+        ?.replace(/\s+/g, " ")
+        ?.trim()
+        ?.toLowerCase()
+        ?.replace(/\b\w/g, (c) => c.toUpperCase()) || null;
+
+    const cacheKey = `statelist_${cleanCountry}`;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        setstatelist(JSON.parse(cached));
+        return;
+      }
+    } catch (e) {}
+
+    const fetchstate = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.STATE_LIST}`, {
           method: "POST",
@@ -2334,17 +2362,18 @@ function DynamicPage({
             state_id: cleanState || null,
           }),
         });
-        if (!res.ok) {
-          setstatelist([]);
+        if (res.status === 429 || !res.ok) {
           return;
         }
         const data = await res.json();
-        setstatelist(data?.data || []);
-      } catch (err) {
-        // console.error("Error  :", err);
-      }
+        const list = data?.data || [];
+        setstatelist(list);
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify(list));
+        } catch (e) {}
+      } catch (err) {}
     };
-    fetchcity();
+    fetchstate();
   }, [token, active_country, active_state]);
 
   // --- STATE ----
@@ -2353,6 +2382,15 @@ function DynamicPage({
   const [pageByCategory, setPageByCategory] = useState({});
   useEffect(() => {
     if (!token || !courseData?.course_id) return;
+    const cacheKey = `faq_${courseData.course_id}_${active_country || "in"}`;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        setfaq(JSON.parse(cached));
+        return;
+      }
+    } catch (e) {}
+
     const timeout = setTimeout(() => {
       const Faq = async () => {
         const cleanCountry =
@@ -2382,7 +2420,23 @@ function DynamicPage({
               state_id: cleanState,
             }),
           });
-          if (!res.ok) {
+          if (res.status === 429 || !res.ok) {
+            return;
+          }
+          const data = await res.json();
+          const list = data?.data || [];
+          setfaq(list);
+          try {
+            sessionStorage.setItem(cacheKey, JSON.stringify(list));
+          } catch (e) {}
+        } catch (err) {
+          console.error("Recent faq error:", err);
+        }
+      };
+      Faq();
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [token, active_country, active_state, courseData?.course_id]);
             setfaq([]);
             return;
           }
