@@ -225,7 +225,7 @@ function DynamicPage({
   const router = useRouter();
   const { id } = router.query;
   const { slug } = router.query;
-  const { token } = useAuth();
+  const { token, countryLists: authCountryLists } = useAuth();
   const { setCheckoutData } = useCheckout();
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -322,6 +322,10 @@ function DynamicPage({
 
   const [countryLists, setcoutryLists] = useState([]);
   useEffect(() => {
+    if (authCountryLists && authCountryLists.length > 0) {
+      setcoutryLists(authCountryLists);
+      return;
+    }
     if (!token) return;
     const FetchCountryList = async () => {
       try {
@@ -345,7 +349,7 @@ function DynamicPage({
       }
     };
     FetchCountryList();
-  }, [token]);
+  }, [token, authCountryLists]);
 
   const quizIdx = useMemo(() => {
     return (slug || []).findIndex(
@@ -559,9 +563,16 @@ function DynamicPage({
   );
   const [error, setError] = useState(null);
 
+  // Track the key of the data already loaded to skip duplicate client-side fetch on initial mount
+  const initialDataKey = initialCourseData
+    ? `${url_title || ''}_${matchedSupportPage || ''}_${quiz_slug || ''}`
+    : null;
+  const lastFetchedKeyRef = useRef(initialDataKey);
+
   useEffect(() => {
     if (initialCourseData) {
       setCourseData(initialCourseData);
+      lastFetchedKeyRef.current = `${url_title || ''}_${matchedSupportPage || ''}_${quiz_slug || ''}`;
       setError(null);
     }
   }, [initialCourseData, router.asPath]);
@@ -586,6 +597,12 @@ function DynamicPage({
     if (!url_title && !isNotes) {
       setError("Required information is missing.");
       setCourseData(null);
+      return;
+    }
+
+    const currentKey = `${url_title || ''}_${matchedSupportPage || ''}_${quiz_slug || ''}`;
+    // If SSR data already exists and the page route hasn't changed, skip duplicate client fetch
+    if (rawCourseData && lastFetchedKeyRef.current === currentKey) {
       return;
     }
 
@@ -830,6 +847,7 @@ function DynamicPage({
                 schema: data?.data?.schema || prev?.schema || initialCourseData?.schema || null,
               })
             );
+            lastFetchedKeyRef.current = currentKey;
             setError(null);
           }
         }
@@ -2214,7 +2232,7 @@ function DynamicPage({
 
   const [Recentblogs, setRecentBlogs] = useState([]);
   useEffect(() => {
-    if (!token) return;
+    if (!token || Recentblogs.length > 0) return;
     const RecentBlogs = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.RECENT_POSTS}`, {
@@ -7479,22 +7497,38 @@ export async function getServerSideProps({ req, params }) {
 
       const initialSupportSchema = json?.data?.schema || null;
 
-      // Enrich support page with core course data (including header_image) if available
+      // Enrich support page with core course data (including header_image) and dynamic sections in parallel
       if (url_title) {
         try {
-          const courseRes = await fetch(`${API_BASE_URL}/course/view-course`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            body: JSON.stringify({
-              course_id: url_title,
-              country_id: active_country,
-            }),
-          });
-          if (courseRes.ok) {
+          const [courseRes, dynRes] = await Promise.all([
+            fetch(`${API_BASE_URL}/course/view-course`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              body: JSON.stringify({
+                course_id: url_title,
+                country_id: active_country,
+              }),
+            }).catch(() => null),
+            fetch(`${API_BASE_URL}${APIENDPOINTS.DYNAMIC_PAGE}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+              },
+              body: JSON.stringify({
+                course_id: url_title,
+                country_id: active_country || "IN",
+                state_id: active_state || null,
+              }),
+            }).catch(() => null),
+          ]);
+
+          if (courseRes && courseRes.ok) {
             const courseJson = await courseRes.json();
             if (courseJson?.data) {
               json.data.course = { ...(json?.data?.course || {}), ...courseJson.data };
@@ -7503,26 +7537,8 @@ export async function getServerSideProps({ req, params }) {
               }
             }
           }
-        } catch (e) {
-          // ignore
-        }
 
-        // Also enrich support page with dynamic page sections (Overview, Key Features, Why ScholarAcad, What You Learn)
-        try {
-          const dynRes = await fetch(`${API_BASE_URL}${APIENDPOINTS.DYNAMIC_PAGE}`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            body: JSON.stringify({
-              course_id: url_title,
-              country_id: active_country || "IN",
-              state_id: active_state || null,
-            }),
-          });
-          if (dynRes.ok) {
+          if (dynRes && dynRes.ok) {
             const dynJson = await dynRes.json();
             if (dynJson?.data) {
               const supportCourse = json.data.course;
@@ -7583,55 +7599,88 @@ export async function getServerSideProps({ req, params }) {
 
   try {
     let courseInfo = null;
+    let json = null;
+
     if (url_title) {
       try {
-        const courseRes = await fetch(`${API_BASE_URL}/course/view-course`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({
-            course_id: url_title,
-            country_id: active_country,
-            state_id: active_state || null,
-          }),
-        });
-        if (courseRes.ok) {
+        const [courseRes, dynRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/course/view-course`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({
+              course_id: url_title,
+              country_id: active_country,
+              state_id: active_state || null,
+            }),
+          }).catch(() => null),
+          fetch(`${API_BASE_URL}${APIENDPOINTS.DYNAMIC_PAGE}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify(
+              isNotes
+                ? {
+                    slug: "Notes",
+                    course_id: url_title || null,
+                    country_id: active_country,
+                    state_id: active_state || null,
+                  }
+                : {
+                    course_id: url_title,
+                    country_id: active_country,
+                    state_id: active_state || null,
+                  }
+            ),
+          }).catch(() => null),
+        ]);
+
+        if (courseRes && courseRes.ok) {
           const courseJson = await courseRes.json();
           courseInfo = courseJson?.data || null;
+        }
+
+        if (dynRes && dynRes.ok) {
+          json = await dynRes.json();
         }
       } catch (e) {
         // Continue if view-course is not reachable
       }
+    } else {
+      const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.DYNAMIC_PAGE}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(
+          isNotes
+            ? {
+                slug: "Notes",
+                course_id: null,
+                country_id: active_country,
+                state_id: active_state || null,
+              }
+            : {
+                course_id: null,
+                country_id: active_country,
+                state_id: active_state || null,
+              }
+        ),
+      }).catch(() => null);
+      if (res && res.ok) {
+        json = await res.json();
+      }
     }
 
-    const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.DYNAMIC_PAGE}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(
-        isNotes
-          ? {
-              slug: "Notes",
-              course_id: url_title || null,
-              country_id: active_country,
-              state_id: active_state || null,
-            }
-          : {
-              course_id: url_title,
-              country_id: active_country,
-              state_id: active_state || null,
-            }
-      ),
-    });
-    if (!res.ok) {
+    if (!json) {
       if (candidateSubSlug) return { notFound: true };
     }
-    const json = await res.json();
     const data = json?.data?.dynamicCourseHeading || {};
     if (!data?.id && !data?.course_title && !data?.heading && !courseInfo && candidateSubSlug) {
       return { notFound: true };

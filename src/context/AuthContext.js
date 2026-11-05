@@ -10,7 +10,12 @@ export const AuthProvider = ({ children }) => {
     }
     return null;
   });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !Cookies.get("access_token");
+    }
+    return false;
+  });
   const [categories, setCategories] = useState(() => {
     if (typeof window !== "undefined") {
       try {

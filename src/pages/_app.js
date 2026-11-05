@@ -152,10 +152,15 @@ export default function App({ Component, pageProps }) {
     </>
   );
 }
-// Loader wrapper ensures all pages wait for token
+// Loader wrapper ensures critical routes wait for token without blocking public pages
 const AppLoader = ({ children }) => {
+  const router = useRouter();
   const { loading } = useAuth();
-  if (loading) {
+  const isProtectedRoute =
+    router.pathname?.startsWith("/order-summary") ||
+    router.pathname?.startsWith("/checkout");
+
+  if (isProtectedRoute && loading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader />
