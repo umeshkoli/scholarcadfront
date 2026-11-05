@@ -72,6 +72,6 @@ export function getCourseImageUrl(imagePath, fallback = DEFAULT_COURSE_FALLBACK)
 export function getLiveDocumentUrl(imagePath) {
   if (!imagePath || typeof imagePath !== "string") return DEFAULT_COURSE_FALLBACK;
   const cleanPath = imagePath.trim().replace(/^\/+/, "");
-  return `https://api.demotechalphonic.tech/master/secure-documents?path=${encodeURIComponent(cleanPath)}`;
+  return `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(cleanPath)}`;
 }
 

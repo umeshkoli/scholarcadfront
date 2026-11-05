@@ -7,6 +7,14 @@ module.exports = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'knowledgeadmin.scholaracad.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.knowledgeadmin.scholaracad.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'api.demotechalphonic.tech',
       },
       {
@@ -19,7 +27,7 @@ module.exports = {
     return [
       {
         source: '/backend-api/:path*',
-        destination: 'https://api.demotechalphonic.tech/:path*',
+        destination: 'https://knowledgeadmin.scholaracad.com/:path*',
       },
     ];
   },

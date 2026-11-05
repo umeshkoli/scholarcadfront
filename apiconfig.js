@@ -8,10 +8,10 @@ const isVercelBrowser =
 export const API_BASE_URL = isVercelBrowser
   ? "/backend-api"
   : (
-      rawApiUrl && !rawApiUrl.includes("187.127.154.235")
-        ? rawApiUrl
-        : "https://api.demotechalphonic.tech"
-    ).replace(/\/+$/, "");
+    rawApiUrl && !rawApiUrl.includes("187.127.154.235")
+      ? rawApiUrl
+      : "https://knowledgeadmin.scholaracad.com"
+  ).replace(/\/+$/, "");
 
 const rawClientUrl = (process.env.NEXT_PUBLIC_CLIENT_BASE_URL || "").trim();
 export const CLIENT_BASE_URL = (
