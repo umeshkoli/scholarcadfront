@@ -1,17 +1,20 @@
 const rawApiUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "").trim();
 
-// On Vercel deployment domains (*.vercel.app), use same-origin proxy `/backend-api` to bypass browser CORS
-const isVercelBrowser =
-  typeof window !== "undefined" &&
-  (window.location.hostname.endsWith(".vercel.app") || window.location.hostname.includes("vercel.app"));
+// In the browser, use same-origin proxy `/backend-api` to avoid CORS errors when calling the remote backend
+const isClient = typeof window !== "undefined";
+const isLocalhostBackend =
+  rawApiUrl.startsWith("http://127.0.0.1") ||
+  rawApiUrl.startsWith("http://localhost");
 
-export const API_BASE_URL = isVercelBrowser
-  ? "/backend-api"
-  : (
-    rawApiUrl && !rawApiUrl.includes("187.127.154.235")
-      ? rawApiUrl
-      : "https://knowledgeadmin.scholaracad.com"
-  ).replace(/\/+$/, "");
+export const API_BASE_URL = (
+  isClient && !isLocalhostBackend
+    ? "/backend-api"
+    : (
+      rawApiUrl && !rawApiUrl.includes("187.127.154.235")
+        ? rawApiUrl
+        : "https://knowledgeadmin.scholaracad.com"
+    )
+).replace(/\/+$/, "");
 
 const rawClientUrl = (process.env.NEXT_PUBLIC_CLIENT_BASE_URL || "").trim();
 export const CLIENT_BASE_URL = (

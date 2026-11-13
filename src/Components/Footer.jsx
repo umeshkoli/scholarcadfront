@@ -513,22 +513,14 @@ function Footer() {
         </div>
         <div className="max-w-7xl mx-auto p-2  max-sm:my-2">
           <h4 className="font-semibold text-lg">Disclaimer :</h4>
-          <p className="para">
+          <div className="para">
             <div
               className="summernote-content"
               dangerouslySetInnerHTML={{
                 __html: footerContent?.[0]?.content || "",
               }}
             />
-            {/* ITIL® is a registered trademark of PeopleCert Group, used under
-            permission of PeopleCert Group. All rights reserved. The Swirl logo™
-            is a trademark of PeopleCert Group, used under permission of
-            PeopleCert Group. All rights reserved. PRINCE2® / MSP® 5 / MoP® /
-            MoV / P3O ®/ MoR ®, are a registered trademark of PeopleCert Group,
-            used under permission of PeopleCert Group. All rights reserved.
-            COBIT® is a trademark of ISACA® registered in the United States and
-            other countries. */}
-          </p>
+          </div>
         </div>
       </footer>
     </>

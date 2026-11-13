@@ -219,7 +219,7 @@ function Resources() {
                     <Link
                       key={index}
                       href={{
-                        pathname: `/resource/${card?.url}`,
+                        pathname: `/resource/${(card?.url || "").replace(/^\/+/, "")}`,
                       }}
                     >
                       <div

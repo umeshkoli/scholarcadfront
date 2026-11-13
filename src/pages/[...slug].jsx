@@ -2437,19 +2437,6 @@ function DynamicPage({
     }, 300);
     return () => clearTimeout(timeout);
   }, [token, active_country, active_state, courseData?.course_id]);
-            setfaq([]);
-            return;
-          }
-          const data = await res.json();
-          setfaq(data?.data || []);
-        } catch (err) {
-          console.error("Error Recent faq:", err);
-        }
-      };
-      Faq();
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [token, active_country, active_state, courseData?.course_id]);
 
   const [allowDownload, setAllowDownload] = useState(false);
   useEffect(() => {

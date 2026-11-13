@@ -4,57 +4,49 @@ const AuthContext = createContext();
 import Cookies from "js-cookie";
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(() => {
-    if (typeof window !== "undefined") {
-      return Cookies.get("access_token") || null;
-    }
-    return null;
-  });
-  const [loading, setLoading] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !Cookies.get("access_token");
-    }
-    return false;
-  });
-  const [categories, setCategories] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("categories");
-        return saved ? JSON.parse(saved) : [];
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  });
-   const [userLocation, setUserLocation] = useState(null);
-    useEffect(() => {
-      const saved = sessionStorage.getItem("userLocation");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          setUserLocation(parsed);
-        } catch (e) {
-          console.error(" Failed to parse userLocation JSON", e);
-        }
-      }
-    }, []);
-  
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);
+  const [user, setUser] = useState(null);
+  const [countryLists, setcoutryLists] = useState([]);
+  const [promoList, setPromoList] = useState(null);
+
   const active_country = useMemo(() => {
-    return userLocation?.raw?.country.toLowerCase() || "in";
+    return userLocation?.raw?.country?.toLowerCase() || "in";
   }, [userLocation]);
 
-  const [user, setUser] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("auth_user");
-        return saved ? JSON.parse(saved) : null;
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  });
+  // Sync state from cookies / storage after mount to prevent SSR hydration mismatch
+  useEffect(() => {
+    const savedToken = Cookies.get("access_token") || null;
+    setToken(savedToken);
+    setLoading(false);
+
+    try {
+      const savedCategories = localStorage.getItem("categories");
+      if (savedCategories) setCategories(JSON.parse(savedCategories));
+    } catch (e) {}
+
+    try {
+      const savedUser = localStorage.getItem("auth_user");
+      if (savedUser) setUser(JSON.parse(savedUser));
+    } catch (e) {}
+
+    try {
+      const savedLocation = sessionStorage.getItem("userLocation");
+      if (savedLocation) setUserLocation(JSON.parse(savedLocation));
+    } catch (e) {}
+
+    try {
+      const savedCountries = localStorage.getItem("country_lists");
+      if (savedCountries) setcoutryLists(JSON.parse(savedCountries));
+    } catch (e) {}
+
+    try {
+      const savedPromo = sessionStorage.getItem("promo_list");
+      if (savedPromo) setPromoList(JSON.parse(savedPromo));
+    } catch (e) {}
+  }, []);
 
   const DEFAULT_EMAIL = process.env.NEXT_PUBLIC_AUTH_EMAIL || "admin@hotelres.com";
   const DEFAULT_PASSWORD = process.env.NEXT_PUBLIC_AUTH_PASSWORD || "12345678";
@@ -62,20 +54,23 @@ export const AuthProvider = ({ children }) => {
   const loginUser = async (email = DEFAULT_EMAIL, password = DEFAULT_PASSWORD) => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.LOGIN}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      }).catch((err) => {
-        console.error("Login fetch error:", err);
-        return null;
-      });
+      let res = null;
+      try {
+        res = await fetch(`${API_BASE_URL}${APIENDPOINTS.LOGIN}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
+      } catch (fetchErr) {
+        console.warn("Login fetch network warning:", fetchErr?.message || fetchErr);
+        return { success: false, error: fetchErr?.message || "Failed to fetch" };
+      }
 
       if (!res || !res.ok) {
         const errorMsg = res
@@ -210,18 +205,6 @@ export const AuthProvider = ({ children }) => {
     };
   }, [token, active_country]);
 
-  const [countryLists, setcoutryLists] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = localStorage.getItem("country_lists");
-        return saved ? JSON.parse(saved) : [];
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  });
-
   useEffect(() => {
     if (!token) return;
     // Skip network request if already cached
@@ -260,18 +243,6 @@ export const AuthProvider = ({ children }) => {
       isCancelled = true;
     };
   }, [token]);
-
-  const [promoList, setPromoList] = useState(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = sessionStorage.getItem("promo_list");
-        return saved ? JSON.parse(saved) : null;
-      } catch (e) {
-        return null;
-      }
-    }
-    return null;
-  });
 
   useEffect(() => {
     if (!token) return;
