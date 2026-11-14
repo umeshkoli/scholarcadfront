@@ -12,7 +12,7 @@ import { useAuth } from "@/context/AuthContext";
 import { FiChevronsRight } from "react-icons/fi";
 import { encryptId } from "@/utils/encryption";
 import { API_BASE_URL } from "../../apiconfig";
-import { getCourseImageUrl } from "@/utils/imageHelper";
+import { getCourseImageUrl, getLiveDocumentUrl } from "@/utils/imageHelper";
 import { IoCallOutline, IoCloseCircle, IoCloseOutline } from "react-icons/io5";
 import { TfiEmail } from "react-icons/tfi";
 import { BsChatDots } from "react-icons/bs";
@@ -324,13 +324,18 @@ export default function Navbar() {
                                   >
                                     {/* Image */}
                                     <div className="relative w-10 h-10 shrink-0">
-                                      {course?.header_image ? (
+                                      {course?.header_image || course?.image_url ? (
                                         <img
-                                          src={getCourseImageUrl(course?.header_image)}
+                                          src={getCourseImageUrl(course)}
                                           alt={course?.course_title}
                                           onError={(e) => {
-                                            e.currentTarget.onerror = null;
-                                            e.currentTarget.src = '/assets/landingpage/courses/course2.png';
+                                            if (!e.currentTarget.dataset.retried && (course?.header_image || course?.image_url)) {
+                                              e.currentTarget.dataset.retried = "true";
+                                              e.currentTarget.src = getLiveDocumentUrl(course?.header_image || course?.image_url);
+                                            } else {
+                                              e.currentTarget.onerror = null;
+                                              e.currentTarget.src = '/assets/landingpage/courses/course2.png';
+                                            }
                                           }}
                                           className="
                                         w-full h-full
@@ -797,10 +802,19 @@ export default function Navbar() {
                                 >
                                   <div className="flex items-center gap-3">
                                     <div className="relative w-10 h-10 shrink-0">
-                                      {course?.header_image ? (
+                                      {course?.header_image || course?.image_url ? (
                                         <img
-                                          src={getCourseImageUrl(course?.header_image)}
+                                          src={getCourseImageUrl(course)}
                                           alt={course?.course_title}
+                                          onError={(e) => {
+                                            if (!e.currentTarget.dataset.retried && (course?.header_image || course?.image_url)) {
+                                              e.currentTarget.dataset.retried = "true";
+                                              e.currentTarget.src = getLiveDocumentUrl(course?.header_image || course?.image_url);
+                                            } else {
+                                              e.currentTarget.onerror = null;
+                                              e.currentTarget.src = '/assets/landingpage/courses/course2.png';
+                                            }
+                                          }}
                                           className="
                                         w-full h-full
                                         object-contain

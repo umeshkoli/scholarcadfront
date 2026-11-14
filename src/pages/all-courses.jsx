@@ -507,14 +507,14 @@ function Course() {
                     >
                       {/* Top Image Container */}
                       <div className="relative overflow-hidden rounded-xl bg-slate-50 border border-gray-100 flex items-center justify-center h-48 group-hover:bg-purple-50/40 transition-colors">
-                        {course?.header_image ? (
+                        {course?.header_image || course?.image_url ? (
                           <img
-                            src={getCourseImageUrl(course?.header_image)}
+                            src={getCourseImageUrl(course)}
                             alt={course?.course_title}
                             onError={(e) => {
-                              if (!e.currentTarget.dataset.retried && course?.header_image) {
+                              if (!e.currentTarget.dataset.retried && (course?.header_image || course?.image_url)) {
                                 e.currentTarget.dataset.retried = "true";
-                                e.currentTarget.src = getLiveDocumentUrl(course.header_image);
+                                e.currentTarget.src = getLiveDocumentUrl(course?.header_image || course?.image_url);
                               } else {
                                 e.currentTarget.src = DEFAULT_COURSE_FALLBACK;
                               }

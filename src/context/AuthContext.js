@@ -134,13 +134,8 @@ export const AuthProvider = ({ children }) => {
 
     const fetchCategories = async (authToken = token, isRetry = false) => {
       if (!authToken) return;
-      // Skip fetch if categories already cached in memory or localStorage
-      try {
-        const cached = localStorage.getItem("categories");
-        if (cached && categories.length > 0 && !isRetry) {
-          return;
-        }
-      } catch (e) {}
+      // Stale-while-revalidate: initial state is loaded from localStorage,
+      // and background fetch refreshes course data and image URLs seamlessly.
 
       try {
         const res = await fetch(
