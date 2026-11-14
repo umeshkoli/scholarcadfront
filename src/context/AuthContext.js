@@ -16,38 +16,6 @@ export const AuthProvider = ({ children }) => {
     return userLocation?.raw?.country?.toLowerCase() || "in";
   }, [userLocation]);
 
-  // Sync state from cookies / storage after mount to prevent SSR hydration mismatch
-  useEffect(() => {
-    const savedToken = Cookies.get("access_token") || null;
-    setToken(savedToken);
-    setLoading(false);
-
-    try {
-      const savedCategories = localStorage.getItem("categories");
-      if (savedCategories) setCategories(JSON.parse(savedCategories));
-    } catch (e) {}
-
-    try {
-      const savedUser = localStorage.getItem("auth_user");
-      if (savedUser) setUser(JSON.parse(savedUser));
-    } catch (e) {}
-
-    try {
-      const savedLocation = sessionStorage.getItem("userLocation");
-      if (savedLocation) setUserLocation(JSON.parse(savedLocation));
-    } catch (e) {}
-
-    try {
-      const savedCountries = localStorage.getItem("country_lists");
-      if (savedCountries) setcoutryLists(JSON.parse(savedCountries));
-    } catch (e) {}
-
-    try {
-      const savedPromo = sessionStorage.getItem("promo_list");
-      if (savedPromo) setPromoList(JSON.parse(savedPromo));
-    } catch (e) {}
-  }, []);
-
   const DEFAULT_EMAIL = process.env.NEXT_PUBLIC_AUTH_EMAIL || "admin@hotelres.com";
   const DEFAULT_PASSWORD = process.env.NEXT_PUBLIC_AUTH_PASSWORD || "12345678";
 
@@ -124,11 +92,39 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Sync state from cookies / storage after mount & only login if no token exists
   useEffect(() => {
-    if (!token) {
-      loginUser();
-    } else {
+    try {
+      const savedCategories = localStorage.getItem("categories");
+      if (savedCategories) setCategories(JSON.parse(savedCategories));
+    } catch (e) {}
+
+    try {
+      const savedUser = localStorage.getItem("auth_user");
+      if (savedUser) setUser(JSON.parse(savedUser));
+    } catch (e) {}
+
+    try {
+      const savedLocation = sessionStorage.getItem("userLocation");
+      if (savedLocation) setUserLocation(JSON.parse(savedLocation));
+    } catch (e) {}
+
+    try {
+      const savedCountries = localStorage.getItem("country_lists");
+      if (savedCountries) setcoutryLists(JSON.parse(savedCountries));
+    } catch (e) {}
+
+    try {
+      const savedPromo = sessionStorage.getItem("promo_list");
+      if (savedPromo) setPromoList(JSON.parse(savedPromo));
+    } catch (e) {}
+
+    const savedToken = Cookies.get("access_token") || null;
+    if (savedToken) {
+      setToken(savedToken);
       setLoading(false);
+    } else {
+      loginUser();
     }
   }, []);
 
@@ -208,79 +204,102 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (!token) return;
     // Skip network request if already cached
-    if (countryLists && countryLists.length > 0) return;
+    try {
+      const saved = localStorage.getItem("country_lists");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          if (countryLists.length === 0) setcoutryLists(parsed);
+          return;
+        }
+      }
+    } catch (e) {}
 
     let isCancelled = false;
-    const FetchCountryList = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.COUNTRY_LIST}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (res.status === 401 || res.status === 429) {
-          return;
+    const timer = setTimeout(() => {
+      const FetchCountryList = async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.COUNTRY_LIST}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (res.status === 401 || res.status === 429 || !res.ok) {
+            return;
+          }
+          const data = await res.json();
+          if (!isCancelled && data?.data) {
+            setcoutryLists(data.data);
+            try {
+              localStorage.setItem("country_lists", JSON.stringify(data.data));
+            } catch (e) {}
+          }
+        } catch (err) {
+          console.error("Error fetching CountryList:", err);
         }
-        if (!res.ok) {
-          return;
-        }
-        const data = await res.json();
-        if (!isCancelled && data?.data) {
-          setcoutryLists(data.data);
-          try {
-            localStorage.setItem("country_lists", JSON.stringify(data.data));
-          } catch (e) {}
-        }
-      } catch (err) {
-        console.error("Error fetching CountryList:", err);
-      }
-    };
-    FetchCountryList();
+      };
+      FetchCountryList();
+    }, 150);
     return () => {
       isCancelled = true;
+      clearTimeout(timer);
     };
   }, [token]);
 
   useEffect(() => {
     if (!token) return;
-    // Skip network request if already cached in session
-    if (promoList && promoList.length > 0) return;
+    // Skip network request if already checked/cached in session (even if empty/404)
+    try {
+      const saved = sessionStorage.getItem("promo_list");
+      if (saved !== null) {
+        if (promoList === null) setPromoList(JSON.parse(saved));
+        return;
+      }
+    } catch (e) {}
 
     let isCancelled = false;
-    const Fetchpromo = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.PROMO_LIST}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (res.status === 401 || res.status === 429) {
-          return;
+    const timer = setTimeout(() => {
+      const Fetchpromo = async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.PROMO_LIST}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (res.status === 401 || res.status === 429) {
+            return;
+          }
+          if (!res.ok) {
+            // Cache empty array on 404 so we don't re-hit a missing route on every page load
+            setPromoList([]);
+            try {
+              sessionStorage.setItem("promo_list", "[]");
+            } catch (e) {}
+            return;
+          }
+          const data = await res.json();
+          const list = Array.isArray(data?.data) ? data.data : [];
+          if (!isCancelled) {
+            setPromoList(list);
+            try {
+              sessionStorage.setItem("promo_list", JSON.stringify(list));
+            } catch (e) {}
+          }
+        } catch (err) {
+          console.error("Error fetching promoList:", err);
         }
-        if (!res.ok) {
-          console.warn("HTTP error! Status:", res.status);
-          return;
-        }
-        const data = await res.json();
-        if (!isCancelled && data?.data?.length > 0) {
-          setPromoList(data.data);
-          try {
-            sessionStorage.setItem("promo_list", JSON.stringify(data.data));
-          } catch (e) {}
-        }
-      } catch (err) {
-        console.error("Error fetching promoList:", err);
-      }
-    };
-    Fetchpromo();
+      };
+      Fetchpromo();
+    }, 300);
     return () => {
       isCancelled = true;
+      clearTimeout(timer);
     };
   }, [token]);
 

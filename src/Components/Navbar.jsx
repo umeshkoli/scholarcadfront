@@ -416,7 +416,7 @@ export default function Navbar() {
                               title={course?.course_title}
                             >
                               <img
-                                src={`${API_BASE_URL}/master/secure-documents?path=${course?.header_image}`}
+                                src={getCourseImageUrl(course?.header_image)}
                                 alt={course?.course_title}
                                 className="
                                 w-full h-full

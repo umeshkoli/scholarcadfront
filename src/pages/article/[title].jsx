@@ -23,6 +23,7 @@ import { encryptId } from "@/utils/encryption";
 import { useAuth } from "@/context/AuthContext";
 import Loader from "@/Components/loader";
 import { API_BASE_URL, APIENDPOINTS } from "../../../apiconfig";
+import { getBlogImageUrl } from "@/utils/imageHelper";
 import { Nunito } from "next/font/google";
 import { IoMdArrowDropdown, IoMdArrowDropup } from "react-icons/io";
 import Head from "next/head";
@@ -51,15 +52,7 @@ function BlogDetails({ initialBlog }) {
       .replace(/--+/g, "-");
   };
 
-  const getImageSrc = (img) => {
-    if (!img) return "/assets/landingpage/blog1_image.png";
-    const clean = String(img).trim();
-    if (clean.startsWith("http://") || clean.startsWith("https://")) return clean;
-    if (clean.startsWith("/assets/") || clean.startsWith("assets/")) {
-      return clean.startsWith("/") ? clean : "/" + clean;
-    }
-    return API_BASE_URL + "/master/secure-documents?path=" + encodeURIComponent(clean);
-  };
+  const getImageSrc = (img) => getBlogImageUrl(img);
 
   const [expanded, setExpanded] = useState(false);
   const [blogTitle, setBlogTitle] = useState("");
@@ -342,12 +335,20 @@ function BlogDetails({ initialBlog }) {
                   /> */}
 
                   <div className="w-full rounded-md border border-gray-100 overflow-hidden">
-                    {blog?.header_image ? (
+                    {blog?.header_image || blog?.image_url || blog?.image ? (
                       <img
                         data-aos="fade-up"
-                        src={getImageSrc(blog?.header_image)}
+                        src={getImageSrc(blog)}
                         alt={blog?.resource_title || "Blog"}
                         onError={(e) => {
+                          if (!e.currentTarget.dataset.triedLive) {
+                            e.currentTarget.dataset.triedLive = "true";
+                            const clean = (blog?.header_image || blog?.image || "").replace(/^\/+/, "");
+                            if (clean) {
+                              e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                              return;
+                            }
+                          }
                           e.currentTarget.src = "/assets/landingpage/blog1_image.png";
                         }}
                         className="w-full h-auto object-cover"
@@ -458,11 +459,19 @@ function BlogDetails({ initialBlog }) {
                       key={blog?.id || i}
                       className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition"
                     >
-                      {blog?.header_image ? (
+                      {blog?.header_image || blog?.image_url || blog?.image ? (
                         <img
-                          src={getImageSrc(blog?.header_image)}
+                          src={getImageSrc(blog)}
                           alt={blog?.resource_title || "Blog"}
                           onError={(e) => {
+                            if (!e.currentTarget.dataset.triedLive) {
+                              e.currentTarget.dataset.triedLive = "true";
+                              const clean = (blog?.header_image || blog?.image || "").replace(/^\/+/, "");
+                              if (clean) {
+                                e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                                return;
+                              }
+                            }
                             e.currentTarget.src = "/assets/landingpage/blog1_image.png";
                           }}
                           className="w-full h-44 object-cover rounded-md"

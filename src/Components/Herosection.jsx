@@ -14,7 +14,7 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { CgSmileSad } from "react-icons/cg";
 import { API_BASE_URL, APIENDPOINTS } from "../../apiconfig";
-import { getCourseImageUrl, getLiveDocumentUrl, DEFAULT_COURSE_FALLBACK } from "@/utils/imageHelper";
+import { getCourseImageUrl, getBlogImageUrl, getLiveDocumentUrl, DEFAULT_COURSE_FALLBACK } from "@/utils/imageHelper";
 import Loader from "./loader";
 import { useCounter } from "@/utils/useCounter";
 import { HiMiniArrowLongRight } from "react-icons/hi2";
@@ -81,34 +81,66 @@ export default function LandingPage() {
   }, []);
 
   useEffect(() => {
-    if (!token) return;
-    const RecentBlogs = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.RECENT_POSTS}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) {
-          console.log("HTTP error! Status:", res?.status);
-          setRecentBlogs([]);
-          return;
-        }
-        const data = await res.json();
-        setRecentBlogs(data?.data || []);
-      } catch (err) {
-        console.error("Error Recent Blogs :", err);
-      }
-    };
+    try {
+      const cachedBlogs = sessionStorage.getItem("home_recent_blogs");
+      if (cachedBlogs) setRecentBlogs(JSON.parse(cachedBlogs));
+    } catch (e) {}
+  }, []);
 
-    RecentBlogs();
+  useEffect(() => {
+    if (!token) return;
+    try {
+      const cached = sessionStorage.getItem("home_recent_blogs");
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) return;
+      }
+    } catch (e) {}
+
+    const timer = setTimeout(() => {
+      const RecentBlogs = async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.RECENT_POSTS}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!res.ok) {
+            setRecentBlogs([]);
+            return;
+          }
+          const data = await res.json();
+          const list = data?.data || [];
+          setRecentBlogs(list);
+          try {
+            sessionStorage.setItem("home_recent_blogs", JSON.stringify(list));
+          } catch (e) {}
+        } catch (err) {
+          console.error("Error Recent Blogs :", err);
+        }
+      };
+      RecentBlogs();
+    }, 100);
+    return () => clearTimeout(timer);
   }, [token]);
 
-  //  Fetch all fetchAllCourses
+  // Fetch all courses with sessionStorage cache
   useEffect(() => {
+    const cacheKey = `home_all_courses_${active_country || "in"}`;
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setallcourses(parsed);
+          return;
+        }
+      }
+    } catch (e) {}
+
     if (!token) return;
     const fetchAllCourses = async () => {
       try {
@@ -124,54 +156,50 @@ export default function LandingPage() {
           }),
         });
         if (!res.ok) {
-          console.log("HTTP error! Status:", res?.status);
           return;
         }
         const data = await res.json();
-        // console.log("allcourses", data?.data);
-        setallcourses(data?.data || []);
+        const list = data?.data || [];
+        setallcourses(list);
+        try {
+          sessionStorage.setItem(cacheKey, JSON.stringify(list));
+        } catch (e) {}
       } catch (err) {
         console.error("Error fetching blog types:", err);
       }
     };
     fetchAllCourses();
-  }, [token]);
+  }, [token, active_country]);
 
-  //  Fetch all sectionlist
+  // Fetch Section View directly (eliminating sequential section-list waterfall) + sessionStorage cache
   const [sectionlist, setsectionlist] = useState([]);
-  useEffect(() => {
-    if (!token) return;
-    const fetchSectionList = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.SECTION_LIST}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) {
-          console.log("HTTP error! Status:", res?.status);
-          return;
-        }
-        const data = await res.json();
-        setsectionlist(data?.data || []);
-      } catch (err) {
-        console.error("Error fetching sectionlist types:", err);
-      }
-    };
-    fetchSectionList();
-  }, [token]);
-
-  // ---- Fetch Section View after Section List ----
   const [sectionView, setSectionView] = useState([]);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
-    if (!sectionlist || sectionlist.length === 0) {
-      setLoading(false);
-      return;
-    }
+    try {
+      const cachedView = sessionStorage.getItem("home_section_view");
+      if (cachedView) {
+        const parsed = JSON.parse(cachedView);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setSectionView(parsed);
+          setLoading(false);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    if (!token) return;
+
+    const DEFAULT_SECTIONS = [
+      "Herosection_Slider1",
+      "About Us",
+      "Why Choose US",
+      "Herosection_Slider2",
+      "Herosection_Slider3",
+      "Advantages",
+      "who_can_join_our_Certifications",
+    ];
 
     const fetchSectionView = async () => {
       try {
@@ -186,19 +214,21 @@ export default function LandingPage() {
               Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
-              sections: sectionlist?.map((item) => item?.section),
+              sections: DEFAULT_SECTIONS,
             }),
           },
         );
         if (!res.ok) {
-          console.log("HTTP error! Status:", res.status);
           setSectionView([]);
           setLoading(false);
           return;
         }
         const data = await res.json();
-        setSectionView(data?.data || []);
-        // console.log("sectionView,", data?.data);
+        const list = data?.data || [];
+        setSectionView(list);
+        try {
+          sessionStorage.setItem("home_section_view", JSON.stringify(list));
+        } catch (e) {}
       } catch (error) {
         setSectionView([]);
       } finally {
@@ -206,7 +236,7 @@ export default function LandingPage() {
       }
     };
     fetchSectionView();
-  }, [sectionlist]);
+  }, [token]);
 
   const slides = [
     <>
@@ -1235,12 +1265,19 @@ export default function LandingPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div data-aos="fade-up" className="rounded-2xl">
                     <img
-                      src={
-                        Recentblogs[0]?.header_image
-                          ? `${API_BASE_URL}/master/secure-documents?path=${Recentblogs[0]?.header_image}`
-                          : ""
-                      }
+                      src={getBlogImageUrl(Recentblogs[0])}
                       alt={Recentblogs[0]?.resource_title || "Blog"}
+                      onError={(e) => {
+                        if (!e.currentTarget.dataset.triedLive) {
+                          e.currentTarget.dataset.triedLive = "true";
+                          const clean = (Recentblogs[0]?.header_image || Recentblogs[0]?.image || "").replace(/^\/+/, "");
+                          if (clean) {
+                            e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                            return;
+                          }
+                        }
+                        e.currentTarget.src = "/assets/landingpage/blog1_image.png";
+                      }}
                       className="h-50 w-full object-cover rounded-md"
                     />
                     <div className="flex flex-col gap-4 mt-2">
@@ -1285,12 +1322,11 @@ export default function LandingPage() {
                       >
                         <div className="w-full md:w-40 flex-shrink-0">
                           <img
-                            src={
-                              blog.header_image
-                                ? `${API_BASE_URL}/master/secure-documents?path=${blog?.header_image}`
-                                : ""
-                            }
+                            src={getBlogImageUrl(blog)}
                             alt={blog?.resource_title || "NA"}
+                            onError={(e) => {
+                              e.currentTarget.src = "/assets/landingpage/blog1_image.png";
+                            }}
                             className="w-full h-28 md:h-24 object-cover rounded-lg shadow-sm"
                           />
                         </div>

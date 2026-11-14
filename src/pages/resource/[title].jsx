@@ -42,15 +42,7 @@ function blogs() {
       .replace(/--+/g, "-");
   };
 
-  const getImageSrc = (img) => {
-    if (!img) return "/assets/landingpage/blog1_image.png";
-    const clean = String(img).trim();
-    if (clean.startsWith("http://") || clean.startsWith("https://")) return clean;
-    if (clean.startsWith("/assets/") || clean.startsWith("assets/")) {
-      return clean.startsWith("/") ? clean : "/" + clean;
-    }
-    return API_BASE_URL + "/master/secure-documents?path=" + encodeURIComponent(clean);
-  };
+  const getImageSrc = (img) => getBlogImageUrl(img);
 
   const RESOURCE_CATEGORY_MAP = {
     239: "Blog",
@@ -62,8 +54,8 @@ function blogs() {
   const Selectedtab = isQuizMode
     ? "Quiz"
     : isSupportPageMode
-    ? "Support Page"
-    : (RESOURCE_CATEGORY_MAP[Number(activeTab)] || "Article").toLowerCase();
+      ? "Support Page"
+      : (RESOURCE_CATEGORY_MAP[Number(activeTab)] || "Article").toLowerCase();
 
   const RESOURCE_TITLE_TO_ID = Object.entries(RESOURCE_CATEGORY_MAP).reduce(
     (acc, [id, title]) => {
@@ -291,15 +283,15 @@ function blogs() {
                   {isQuizMode
                     ? "Explore Certification Quizzes & Mock Exams"
                     : isSupportPageMode
-                    ? "Explore Course Support Pages & Study Guides"
-                    : "Explore Our Latest Resources"}
+                      ? "Explore Course Support Pages & Study Guides"
+                      : "Explore Our Latest Resources"}
                 </h1>
                 <h2 className="max-w-[80%] font-semibold text-md text-[#535353] mt-1">
                   {isQuizMode
                     ? "Practice with exam-aligned questions and mock assessments across top certification domains."
                     : isSupportPageMode
-                    ? "Access comprehensive syllabuses, exam formats, notes, and study roadmaps category-wise."
-                    : "Explore trends, insights, and helpful advice for earning certifications and advancing your career."}
+                      ? "Access comprehensive syllabuses, exam formats, notes, and study roadmaps category-wise."
+                      : "Explore trends, insights, and helpful advice for earning certifications and advancing your career."}
                 </h2>
               </div>
             </div>
@@ -319,11 +311,10 @@ function blogs() {
                           setCurrentPage(1);
                         }}
                         className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition cursor-pointer
-                        ${
-                          activeTab2 === tab?.id
+                        ${activeTab2 === tab?.id
                             ? "bg-[#E2D2FFB2] text-[#2E318D] border border-[#882CFB]"
                             : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100"
-                        }
+                          }
                       `}
                       >
                         {tab?.label}
@@ -397,15 +388,13 @@ function blogs() {
                         setCurrentPage(1);
                       }}
                       className={`text-left px-4 py-3 rounded-md transition-all
-                        ${
-                          activeTab === item?.id
-                            ? "bg-[#b9a8ff] text-white font-semibold"
-                            : "bg-white hover:bg-gray-100 text-gray-700 border border-[#DFE0FF]"
+                        ${activeTab === item?.id
+                          ? "bg-[#b9a8ff] text-white font-semibold"
+                          : "bg-white hover:bg-gray-100 text-gray-700 border border-[#DFE0FF]"
                         }
-                        ${
-                          showSearch
-                            ? "cursor-not-allowed opacity-50"
-                            : "cursor-pointer"
+                        ${showSearch
+                          ? "cursor-not-allowed opacity-50"
+                          : "cursor-pointer"
                         }
                       `}
                     >
@@ -446,16 +435,16 @@ function blogs() {
 
                   {((Array?.isArray(result) && result?.length === 0) ||
                     result === "No match found") && (
-                    <div className="w-full flex flex-col items-center justify-center py-8 bg-white rounded-md border border-gray-200">
-                      <CiWarning className="text-4xl text-red-500 mb-3" />
-                      <p className="text-center text-red-600 font-semibold text-lg">
-                        No Data found
-                      </p>
-                      <p className="text-center text-gray-500 text-sm">
-                        Try adjusting your search or search by title.
-                      </p>
-                    </div>
-                  )}
+                      <div className="w-full flex flex-col items-center justify-center py-8 bg-white rounded-md border border-gray-200">
+                        <CiWarning className="text-4xl text-red-500 mb-3" />
+                        <p className="text-center text-red-600 font-semibold text-lg">
+                          No Data found
+                        </p>
+                        <p className="text-center text-gray-500 text-sm">
+                          Try adjusting your search or search by title.
+                        </p>
+                      </div>
+                    )}
 
                   {Array.isArray(result) && result.length > 0 && (
                     <section className="w-full mb-6">
@@ -473,8 +462,8 @@ function blogs() {
                                 isQuizMode
                                   ? item?.quiz_url || `/course-quizzes/${item?.course_slug}/${item?.slug}`
                                   : isSupportPageMode
-                                  ? item?.page_url || `/${item?.course_slug}/${item?.slug || item?.type}`
-                                  : `/article/${item?.url_title || item?.slug || slugify(item?.resource_title)}`
+                                    ? item?.page_url || `/${item?.course_slug}/${item?.slug || item?.type}`
+                                    : `/article/${item?.url_title || item?.slug || slugify(item?.resource_title)}`
                               }
                               className="text-[#882CFB] font-medium text-sm hover:underline"
                             >
@@ -610,9 +599,17 @@ function blogs() {
                               >
                                 <div>
                                   <img
-                                    src={getBlogImageUrl(item?.header_image)}
+                                    src={getBlogImageUrl(item)}
                                     alt={item?.resource_title || item?.title || "Article"}
                                     onError={(e) => {
+                                      if (!e.currentTarget.dataset.triedLive) {
+                                        e.currentTarget.dataset.triedLive = "true";
+                                        const clean = (item?.header_image || item?.image || "").replace(/^\/+/, "");
+                                        if (clean) {
+                                          e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                                          return;
+                                        }
+                                      }
                                       e.currentTarget.src = "/assets/landingpage/blog1_image.png";
                                     }}
                                     className="w-full h-44 object-cover"
@@ -643,10 +640,10 @@ function blogs() {
                                       <p>
                                         {item?.created_at
                                           ? new Date(item.created_at).toLocaleDateString("en-US", {
-                                              year: "numeric",
-                                              month: "short",
-                                              day: "2-digit",
-                                            })
+                                            year: "numeric",
+                                            month: "short",
+                                            day: "2-digit",
+                                          })
                                           : "NA"}
                                       </p>
                                     </div>

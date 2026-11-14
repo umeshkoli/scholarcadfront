@@ -10,6 +10,7 @@ import { FaArrowLeft, FaArrowRight, FaStar } from "react-icons/fa";
 import { LiaQuoteLeftSolid } from "react-icons/lia";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL, APIENDPOINTS } from "../../../apiconfig";
+import { getBlogImageUrl } from "@/utils/imageHelper";
 import Link from "next/link";
 import Consultingform from "@/Components/consultingform";
 import { CgSmileSad } from "react-icons/cg";
@@ -492,11 +493,7 @@ function ConsultingDetails() {
                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
                   >
                     <img
-                      src={
-                        blog.header_image
-                          ? `${API_BASE_URL}/master/secure-documents?path=${blog?.header_image}`
-                          : ""
-                      }
+                      src={getBlogImageUrl(blog?.header_image)}
                       alt={blog?.resource_title || "NA"}
                       className="h-40  w-full object-cover border-b border-gray-100"
                     />

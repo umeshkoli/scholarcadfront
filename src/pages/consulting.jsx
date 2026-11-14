@@ -12,6 +12,7 @@ import { LiaQuoteLeftSolid } from "react-icons/lia";
 import toast from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL, APIENDPOINTS } from "../../apiconfig";
+import { getBlogImageUrl, getLiveDocumentUrl } from "@/utils/imageHelper";
 import Link from "next/link";
 import Head from "next/head";
 import Consultingform from "@/Components/consultingform";
@@ -180,7 +181,7 @@ function Consulting() {
                       <div className="w-full h-full flex items-center justify-center bg-gray-200">
                         {item?.pages_img ? (
                           <img
-                            src={`${API_BASE_URL}/master/secure-documents?path=${item?.pages_img}`}
+                            src={getLiveDocumentUrl(item?.pages_img)}
                             alt={item?.banner_Heading || "image"}
                             className="w-full h-full object-cover"
                           />
@@ -443,11 +444,7 @@ function Consulting() {
                     className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
                   >
                     <img
-                      src={
-                        blog.header_image
-                          ? `${API_BASE_URL}/master/secure-documents?path=${blog?.header_image}`
-                          : ""
-                      }
+                      src={getBlogImageUrl(blog?.header_image)}
                       alt={blog?.resource_title || "NA"}
                       className="h-40  w-full object-cover border-b border-gray-100"
                     />

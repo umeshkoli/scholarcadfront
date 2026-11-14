@@ -21,13 +21,22 @@ module.exports = {
         protocol: 'https',
         hostname: 'scholaracad.com',
       },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
     ],
   },
   async rewrites() {
+    const rawBackend = (process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000').trim().replace(/\/+$/, '');
     return [
       {
         source: '/backend-api/:path*',
-        destination: 'https://knowledgeadmin.scholaracad.com/:path*',
+        destination: `${rawBackend}/:path*`,
       },
     ];
   },

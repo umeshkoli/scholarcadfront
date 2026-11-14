@@ -5,6 +5,7 @@ import Testimonials from "@/Components/testimonials";
 import { FaQuoteLeft } from "react-icons/fa";
 import { useAuth } from "@/context/AuthContext";
 import { API_BASE_URL, APIENDPOINTS } from "../../apiconfig";
+import { getLiveDocumentUrl } from "@/utils/imageHelper";
 import { useEffect, useMemo, useState } from "react";
 
 function Reviewtestimonails() {
@@ -110,7 +111,7 @@ function Reviewtestimonails() {
                   <div className="w-14 h-14 rounded-full border-2 border-indigo-600 flex items-center justify-center overflow-hidden bg-indigo-100">
                     {item?.image ? (
                       <img
-                        src={`${API_BASE_URL}/master/secure-documents?path=${item.image}`}
+                        src={getLiveDocumentUrl(item.image)}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />

@@ -374,12 +374,11 @@ function blogs() {
                                       className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
                                     >
                                       <img
-                                        src={
-                                          `${API_BASE_URL}/master/secure-documents?path=
-                                          ${blog?.header_image}` ||
-                                          "/assets/landingpage/blog1_image.png"
-                                        }
-                                        alt={blog?.title}
+                                        src={getBlogImageUrl(blog)}
+                                        alt={blog?.resource_title || blog?.title || "Blog Image"}
+                                        onError={(e) => {
+                                          e.currentTarget.src = "/assets/landingpage/blog1_image.png";
+                                        }}
                                         className="w-full h-44 object-cover border-b border-gray-200"
                                       />
                                       <div className="p-4">
@@ -484,9 +483,17 @@ function blogs() {
                             >
                               <div>
                                 <img
-                                  src={getBlogImageUrl(blog?.header_image)}
+                                  src={getBlogImageUrl(blog)}
                                   alt={blog?.resource_title || blog?.title || "Blog"}
                                   onError={(e) => {
+                                    if (!e.currentTarget.dataset.triedLive) {
+                                      e.currentTarget.dataset.triedLive = "true";
+                                      const clean = (blog?.header_image || blog?.image || "").replace(/^\/+/, "");
+                                      if (clean) {
+                                        e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                                        return;
+                                      }
+                                    }
                                     e.currentTarget.src = "/assets/landingpage/blog1_image.png";
                                   }}
                                   className="w-full h-44 object-cover"

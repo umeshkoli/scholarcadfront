@@ -1,18 +1,15 @@
 const rawApiUrl = (process.env.NEXT_PUBLIC_API_BASE_URL || "").trim();
 
-// In the browser, use same-origin proxy `/backend-api` to avoid CORS errors when calling the remote backend
+// In the browser, route API calls through Next.js proxy `/backend-api` to prevent CORS issues
 const isClient = typeof window !== "undefined";
-const isLocalhostBackend =
-  rawApiUrl.startsWith("http://127.0.0.1") ||
-  rawApiUrl.startsWith("http://localhost");
 
 export const API_BASE_URL = (
-  isClient && !isLocalhostBackend
+  isClient
     ? "/backend-api"
     : (
       rawApiUrl && !rawApiUrl.includes("187.127.154.235")
         ? rawApiUrl
-        : "https://knowledgeadmin.scholaracad.com"
+        : "http://127.0.0.1:8000"
     )
 ).replace(/\/+$/, "");
 
@@ -71,7 +68,7 @@ export const APIENDPOINTS = {
   API_FOOTER_CONTENT: "/api/footer-disclamier",
   API_ALLCOURSES_CONTENT: "/api/all-courses-content",
   COURSE_LIST: "/api/course/course-list",
-  VIEW_COURSE: "/api/course/view-course",
+  VIEW_COURSE: "/course/view-course",
   COURSE_SYLLABUS: "/api/courses",
   COURSE_QUIZZES: "/api/courses",
   RESOURCE_QUIZZES: "/api/resource/quizzes",

@@ -34,50 +34,68 @@ function testimonials() {
 
   // FETCH TESTIMONIALS
   useEffect(() => {
-    if (!token) return;
-
-    const fetchTestimonials = async () => {
-      try {
-        setLoadingBlogs(true);
-
-        const res = await fetch(
-          `${API_BASE_URL}${APIENDPOINTS.TESTIMONIALS_LIST}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              course_id: null,
-              top: 10,
-              country_id: active_country || "in",
-              state_id: active_state || null,
-            }),
-          },
-        );
-
-        if (!res.ok) {
-          console.warn("HTTP error! Status:", res.status);
-          setTestimonialList([]);
+    const cacheKey = `home_testimonials_${active_country || "in"}_${active_state || "all"}`;
+    try {
+      const saved = sessionStorage.getItem(cacheKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTestimonialList(parsed);
           setActiveSlide(0);
           return;
         }
-        const data = await res.json();
-        const list = Array.isArray(data?.data) ? data.data.slice(0, 10) : [];
-        setTestimonialList(list);
-        setActiveSlide(0); 
-      } catch (err) {
-        console.error("Error fetching testimonials:", err);
-        setTestimonialList([]);
-        setActiveSlide(0);
-      } finally {
-        setLoadingBlogs(false);
       }
-    };
+    } catch (e) {}
 
-    fetchTestimonials();
+    if (!token) return;
+
+    const timer = setTimeout(() => {
+      const fetchTestimonials = async () => {
+        try {
+          setLoadingBlogs(true);
+
+          const res = await fetch(
+            `${API_BASE_URL}${APIENDPOINTS.TESTIMONIALS_LIST}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                course_id: null,
+                top: 10,
+                country_id: active_country || "in",
+                state_id: active_state || null,
+              }),
+            },
+          );
+
+          if (!res.ok) {
+            setTestimonialList([]);
+            setActiveSlide(0);
+            return;
+          }
+          const data = await res.json();
+          const list = Array.isArray(data?.data) ? data.data.slice(0, 10) : [];
+          setTestimonialList(list);
+          setActiveSlide(0);
+          try {
+            sessionStorage.setItem(cacheKey, JSON.stringify(list));
+          } catch (e) {}
+        } catch (err) {
+          console.error("Error fetching testimonials:", err);
+          setTestimonialList([]);
+          setActiveSlide(0);
+        } finally {
+          setLoadingBlogs(false);
+        }
+      };
+
+      fetchTestimonials();
+    }, 150);
+    return () => clearTimeout(timer);
   }, [token, active_country, active_state]);
 
   useEffect(() => {

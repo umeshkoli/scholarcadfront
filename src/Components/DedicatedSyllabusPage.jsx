@@ -1828,11 +1828,7 @@ export default function DedicatedSyllabusPage({
                         <div className="flex md:justify-end justify-center">
                           <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 max-w-[85%] w-full flex justify-center items-center shadow-xs">
                             <img
-                              src={
-                                certificateImagePath.startsWith("http")
-                                  ? certificateImagePath
-                                  : `${API_BASE_URL}/master/secure-documents?path=${certificateImagePath}`
-                              }
+                              src={getCourseImageUrl(certificateImagePath)}
                               alt="Certificate Preview"
                               onError={(e) => {
                                 e.currentTarget.style.display = "none";

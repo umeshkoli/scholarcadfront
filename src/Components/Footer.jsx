@@ -52,90 +52,132 @@ function Footer() {
   }, [userLocation]);
 
   useEffect(() => {
-    if (!token) return;
-    const FetchPages = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.ALL_PAGES}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if (!res.ok) {
-          // console.warn("HTTP error! Status:", res?.status);
-          setPagelists([]);
-          return;
-        }
-        const data = await res.json();
-        setPagelists(data?.data || []);
-      } catch (err) {
-        // console.error("Error fetching Pagelists:", err);
+    try {
+      const savedPages = sessionStorage.getItem("footer_all_pages");
+      if (savedPages) {
+        setPagelists(JSON.parse(savedPages));
+        return;
       }
-    };
+    } catch (e) {}
 
-    FetchPages();
+    if (!token) return;
+    const timer = setTimeout(() => {
+      const FetchPages = async () => {
+        try {
+          const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.ALL_PAGES}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (!res.ok) {
+            setPagelists([]);
+            return;
+          }
+          const data = await res.json();
+          const list = data?.data || [];
+          setPagelists(list);
+          try {
+            sessionStorage.setItem("footer_all_pages", JSON.stringify(list));
+          } catch (e) {}
+        } catch (err) {}
+      };
+      FetchPages();
+    }, 200);
+    return () => clearTimeout(timer);
   }, [token]);
 
   // FetchContactDetails Api
   useEffect(() => {
-    if (!token) return;
-    const FetchContactDetails = async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}${APIENDPOINTS.CONTACT_DETAILS}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        if (!res.ok) {
-          console.warn("HTTP error! Status:", res?.status);
-          setContactdetail([]);
-          return;
-        }
-        const data = await res.json();
-        setContactdetail(data?.data || []);
-      } catch (err) {
-        console.error("Error fetching FetchContactDetails:", err);
+    try {
+      const savedContact = sessionStorage.getItem("footer_contact_details");
+      if (savedContact) {
+        setContactdetail(JSON.parse(savedContact));
+        return;
       }
-    };
-    FetchContactDetails();
+    } catch (e) {}
+
+    if (!token) return;
+    const timer = setTimeout(() => {
+      const FetchContactDetails = async () => {
+        try {
+          const res = await fetch(
+            `${API_BASE_URL}${APIENDPOINTS.CONTACT_DETAILS}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          );
+          if (!res.ok) {
+            setContactdetail([]);
+            return;
+          }
+          const data = await res.json();
+          const list = data?.data || [];
+          setContactdetail(list);
+          try {
+            sessionStorage.setItem("footer_contact_details", JSON.stringify(list));
+          } catch (e) {}
+        } catch (err) {
+          console.error("Error fetching FetchContactDetails:", err);
+        }
+      };
+      FetchContactDetails();
+    }, 250);
+    return () => clearTimeout(timer);
   }, [token]);
 
   const [footerContent, setfooterContent] = useState(null);
   useEffect(() => {
-    if (!token) return;
-    const FetchFootercontent = async () => {
-      try {
-        const res = await fetch(
-          `${API_BASE_URL}${APIENDPOINTS.API_FOOTER_CONTENT}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-        if (!res.ok) {
-          console.warn("HTTP error! Status:", res?.status);
-          setfooterContent([]);
-          return;
-        }
-        const data = await res.json();
-        setfooterContent(data?.data || []);
-      } catch (err) {
-        console.error("Error fetching FetchFootercontent:", err);
+    try {
+      const savedFooter = sessionStorage.getItem("footer_disclaimer_content");
+      if (savedFooter !== null) {
+        setfooterContent(JSON.parse(savedFooter));
+        return;
       }
-    };
-    FetchFootercontent();
+    } catch (e) {}
+
+    if (!token) return;
+    const timer = setTimeout(() => {
+      const FetchFootercontent = async () => {
+        try {
+          const res = await fetch(
+            `${API_BASE_URL}${APIENDPOINTS.API_FOOTER_CONTENT}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          );
+          if (!res.ok) {
+            setfooterContent([]);
+            try {
+              sessionStorage.setItem("footer_disclaimer_content", "[]");
+            } catch (e) {}
+            return;
+          }
+          const data = await res.json();
+          const list = data?.data || [];
+          setfooterContent(list);
+          try {
+            sessionStorage.setItem("footer_disclaimer_content", JSON.stringify(list));
+          } catch (e) {}
+        } catch (err) {
+          console.error("Error fetching FetchFootercontent:", err);
+        }
+      };
+      FetchFootercontent();
+    }, 300);
+    return () => clearTimeout(timer);
   }, [token]);
 
   return (

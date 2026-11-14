@@ -144,7 +144,7 @@ import { LuDownload, LuTvMinimal } from "react-icons/lu";
 import { BsCheck2All, BsCheck2Circle } from "react-icons/bs";
 import Contactus from "@/Components/contact";
 import { CgSmileSad } from "react-icons/cg";
-import { getCourseImageUrl, DEFAULT_COURSE_FALLBACK } from "@/utils/imageHelper";
+import { getCourseImageUrl, getBlogImageUrl, DEFAULT_COURSE_FALLBACK } from "@/utils/imageHelper";
 
 const normalizeImageUrl = (path, fallback = DEFAULT_COURSE_FALLBACK) => {
   return getCourseImageUrl(path, fallback);
@@ -573,14 +573,26 @@ function DynamicPage({
   );
   const [error, setError] = useState(null);
 
+  const hasValidCourseData = (d) =>
+    Boolean(
+      d &&
+        (d.dynamicCourseHeading?.id ||
+          d.dynamicCourseHeading?.course_title ||
+          d.course?.id ||
+          d.support_page ||
+          d.quiz ||
+          (Array.isArray(d.data) && d.data.length > 0) ||
+          (Array.isArray(d.questions) && d.questions.length > 0))
+    );
+
   // Track the key of the data already loaded to skip duplicate client-side fetch on initial mount
-  const initialDataKey = initialCourseData
+  const initialDataKey = hasValidCourseData(initialCourseData)
     ? `${url_title || ''}_${matchedSupportPage || ''}_${quiz_slug || ''}`
     : null;
   const lastFetchedKeyRef = useRef(initialDataKey);
 
   useEffect(() => {
-    if (initialCourseData) {
+    if (hasValidCourseData(initialCourseData)) {
       setCourseData(initialCourseData);
       lastFetchedKeyRef.current = `${url_title || ''}_${matchedSupportPage || ''}_${quiz_slug || ''}`;
       setError(null);
@@ -611,8 +623,8 @@ function DynamicPage({
     }
 
     const currentKey = `${url_title || ''}_${matchedSupportPage || ''}_${quiz_slug || ''}`;
-    // If SSR data already exists and the page route hasn't changed, skip duplicate client fetch
-    if (rawCourseData && lastFetchedKeyRef.current === currentKey) {
+    // If valid SSR data already exists and the page route hasn't changed, skip duplicate client fetch
+    if (hasValidCourseData(rawCourseData) && lastFetchedKeyRef.current === currentKey) {
       return;
     }
 
@@ -6501,12 +6513,19 @@ function DynamicPage({
                             className="bg-white border border-gray-300 shadow-sm rounded-lg  overflow-hidden hover:shadow-lg transition"
                           >
                             <img
-                              src={
-                                blog.header_image
-                                  ? `${API_BASE_URL}/master/secure-documents?path=${blog?.header_image}`
-                                  : ""
-                              }
+                              src={getBlogImageUrl(blog)}
                               alt={blog?.resource_title || "NA"}
+                              onError={(e) => {
+                                if (!e.currentTarget.dataset.triedLive) {
+                                  e.currentTarget.dataset.triedLive = "true";
+                                  const clean = (blog?.header_image || blog?.image || "").replace(/^\/+/, "");
+                                  if (clean) {
+                                    e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                                    return;
+                                  }
+                                }
+                                e.currentTarget.src = "/assets/landingpage/blog1_image.png";
+                              }}
                               className="h-40  w-full object-cover border-b border-gray-100"
                             />
 
@@ -7155,8 +7174,35 @@ function DynamicPage({
 }
 
 export default DynamicPage;
+
+let cachedServerToken = null;
+async function getServerAuthToken(cookieToken) {
+  if (cookieToken) return cookieToken;
+  if (cachedServerToken) return cachedServerToken;
+  try {
+    const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.LOGIN}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        email: process.env.NEXT_PUBLIC_AUTH_EMAIL || "admin@hotelres.com",
+        password: process.env.NEXT_PUBLIC_AUTH_PASSWORD || "12345678",
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const t = data?.token || data?.access_token || data?.data?.token || null;
+      if (t) cachedServerToken = t;
+      return t;
+    }
+  } catch (e) {}
+  return null;
+}
+
 export async function getServerSideProps({ req, params }) {
-  const token = req.cookies?.access_token || null;
+  const token = await getServerAuthToken(req.cookies?.access_token || null);
   const rawSlug = params.slug || [];
   const slug = Array.isArray(rawSlug) ? rawSlug : [rawSlug];
 
@@ -7641,6 +7687,7 @@ export async function getServerSideProps({ req, params }) {
   try {
     let courseInfo = null;
     let json = null;
+    const ssrCountry = (active_country || "IN").toUpperCase();
 
     if (url_title) {
       try {
@@ -7654,14 +7701,14 @@ export async function getServerSideProps({ req, params }) {
             },
             body: JSON.stringify({
               course_id: url_title,
-              country_id: active_country,
-              state_id: active_state || null,
+              country_id: ssrCountry,
             }),
           }).catch(() => null),
           fetch(`${API_BASE_URL}${APIENDPOINTS.DYNAMIC_PAGE}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              Accept: "application/json",
               ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
             body: JSON.stringify(
@@ -7669,12 +7716,12 @@ export async function getServerSideProps({ req, params }) {
                 ? {
                     slug: "Notes",
                     course_id: url_title || null,
-                    country_id: active_country,
+                    country_id: ssrCountry,
                     state_id: active_state || null,
                   }
                 : {
                     course_id: url_title,
-                    country_id: active_country,
+                    country_id: ssrCountry,
                     state_id: active_state || null,
                   }
             ),
@@ -7683,20 +7730,24 @@ export async function getServerSideProps({ req, params }) {
 
         if (courseRes && courseRes.ok) {
           const courseJson = await courseRes.json();
-          courseInfo = courseJson?.data || null;
+          if (courseJson?.data) {
+            courseInfo = courseJson.data;
+          }
         }
 
         if (dynRes && dynRes.ok) {
           json = await dynRes.json();
+          if (!courseInfo) {
+            courseInfo = json?.data?.course || null;
+          }
         }
-      } catch (e) {
-        // Continue if view-course is not reachable
-      }
+      } catch (e) {}
     } else {
       const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.DYNAMIC_PAGE}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Accept: "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(
@@ -7704,12 +7755,12 @@ export async function getServerSideProps({ req, params }) {
             ? {
                 slug: "Notes",
                 course_id: null,
-                country_id: active_country,
+                country_id: ssrCountry,
                 state_id: active_state || null,
               }
             : {
                 course_id: null,
-                country_id: active_country,
+                country_id: ssrCountry,
                 state_id: active_state || null,
               }
         ),
@@ -7739,14 +7790,16 @@ export async function getServerSideProps({ req, params }) {
       null;
     const metaKeywords = data?.meta_keywords || courseInfo?.meta_keywords || null;
 
-    const mergedData = sanitizeDynamicCourseData({
-      ...(json?.data || {}),
-      schema: courseInfo?.schema || json?.data?.schema || null,
-      course: courseInfo || json?.data?.course || null,
-      header_image: courseInfo?.header_image || json?.data?.header_image || null,
-      course_title: courseInfo?.course_title || json?.data?.course_title || null,
-      short_description: courseInfo?.short_description || json?.data?.short_description || null,
-    });
+    const mergedData = json?.data
+      ? sanitizeDynamicCourseData({
+          ...(json?.data || {}),
+          schema: courseInfo?.schema || json?.data?.schema || null,
+          course: courseInfo || json?.data?.course || null,
+          header_image: courseInfo?.header_image || json?.data?.header_image || null,
+          course_title: courseInfo?.course_title || json?.data?.course_title || null,
+          short_description: courseInfo?.short_description || json?.data?.short_description || null,
+        })
+      : null;
 
     const resolvedCourseTitle =
       data?.course_title ||
