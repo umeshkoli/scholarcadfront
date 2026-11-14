@@ -24,12 +24,30 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       let res = null;
       try {
+        // Obtain XSRF-TOKEN cookie if missing
+        let xsrfToken = Cookies.get("XSRF-TOKEN");
+        if (!xsrfToken && typeof window !== "undefined") {
+          try {
+            await fetch(`${API_BASE_URL}/login`, {
+              method: "GET",
+              credentials: "include",
+            });
+            xsrfToken = Cookies.get("XSRF-TOKEN");
+          } catch (csrfErr) {}
+        }
+
+        const headers = {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        };
+        if (xsrfToken) {
+          headers["X-XSRF-TOKEN"] = decodeURIComponent(xsrfToken);
+        }
+
         res = await fetch(`${API_BASE_URL}${APIENDPOINTS.LOGIN}`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+          headers,
+          credentials: "include",
           body: JSON.stringify({
             email,
             password,
