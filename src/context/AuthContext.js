@@ -16,8 +16,8 @@ export const AuthProvider = ({ children }) => {
     return userLocation?.raw?.country?.toLowerCase() || "in";
   }, [userLocation]);
 
-  const DEFAULT_EMAIL = process.env.NEXT_PUBLIC_AUTH_EMAIL || "admin@hotelres.com";
-  const DEFAULT_PASSWORD = process.env.NEXT_PUBLIC_AUTH_PASSWORD || "12345678";
+  const DEFAULT_EMAIL = process.env.NEXT_PUBLIC_AUTH_EMAIL || "koli.umesh@gmail.com";
+  const DEFAULT_PASSWORD = process.env.NEXT_PUBLIC_AUTH_PASSWORD || "Radha@Rani26";
 
   const loginUser = async (email = DEFAULT_EMAIL, password = DEFAULT_PASSWORD) => {
     try {
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
             setUser(data.user);
             try {
               localStorage.setItem("auth_user", JSON.stringify(data.user));
-            } catch (e) {}
+            } catch (e) { }
           }
           return { success: true, user: data?.user, token: authToken };
         } else {
@@ -88,7 +88,7 @@ export const AuthProvider = ({ children }) => {
     if (typeof window !== "undefined") {
       try {
         localStorage.removeItem("auth_user");
-      } catch (e) {}
+      } catch (e) { }
     }
   };
 
@@ -97,27 +97,27 @@ export const AuthProvider = ({ children }) => {
     try {
       const savedCategories = localStorage.getItem("categories");
       if (savedCategories) setCategories(JSON.parse(savedCategories));
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       const savedUser = localStorage.getItem("auth_user");
       if (savedUser) setUser(JSON.parse(savedUser));
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       const savedLocation = sessionStorage.getItem("userLocation");
       if (savedLocation) setUserLocation(JSON.parse(savedLocation));
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       const savedCountries = localStorage.getItem("country_lists");
       if (savedCountries) setcoutryLists(JSON.parse(savedCountries));
-    } catch (e) {}
+    } catch (e) { }
 
     try {
       const savedPromo = sessionStorage.getItem("promo_list");
       if (savedPromo) setPromoList(JSON.parse(savedPromo));
-    } catch (e) {}
+    } catch (e) { }
 
     const savedToken = Cookies.get("access_token") || null;
     if (savedToken) {
@@ -182,7 +182,7 @@ export const AuthProvider = ({ children }) => {
           setCategories(data.data);
           try {
             localStorage.setItem("categories", JSON.stringify(data.data));
-          } catch (e) {}
+          } catch (e) { }
         }
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -208,7 +208,7 @@ export const AuthProvider = ({ children }) => {
           return;
         }
       }
-    } catch (e) {}
+    } catch (e) { }
 
     let isCancelled = false;
     const timer = setTimeout(() => {
@@ -230,7 +230,7 @@ export const AuthProvider = ({ children }) => {
             setcoutryLists(data.data);
             try {
               localStorage.setItem("country_lists", JSON.stringify(data.data));
-            } catch (e) {}
+            } catch (e) { }
           }
         } catch (err) {
           console.error("Error fetching CountryList:", err);
@@ -253,7 +253,7 @@ export const AuthProvider = ({ children }) => {
         if (promoList === null) setPromoList(JSON.parse(saved));
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     let isCancelled = false;
     const timer = setTimeout(() => {
@@ -275,7 +275,7 @@ export const AuthProvider = ({ children }) => {
             setPromoList([]);
             try {
               sessionStorage.setItem("promo_list", "[]");
-            } catch (e) {}
+            } catch (e) { }
             return;
           }
           const data = await res.json();
@@ -284,7 +284,7 @@ export const AuthProvider = ({ children }) => {
             setPromoList(list);
             try {
               sessionStorage.setItem("promo_list", JSON.stringify(list));
-            } catch (e) {}
+            } catch (e) { }
           }
         } catch (err) {
           console.error("Error fetching promoList:", err);

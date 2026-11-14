@@ -487,7 +487,7 @@ function DynamicPage({
         setTestimonialList(JSON.parse(cached));
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     const fetchTestimonials = async () => {
       try {
@@ -517,7 +517,7 @@ function DynamicPage({
         setTestimonialList(list);
         try {
           sessionStorage.setItem(cacheKey, JSON.stringify(list));
-        } catch (e) {}
+        } catch (e) { }
         setActiveSlidetestimonials(0);
       } catch (err) {
         console.error("Error fetching testimonials:", err);
@@ -576,13 +576,13 @@ function DynamicPage({
   const hasValidCourseData = (d) =>
     Boolean(
       d &&
-        (d.dynamicCourseHeading?.id ||
-          d.dynamicCourseHeading?.course_title ||
-          d.course?.id ||
-          d.support_page ||
-          d.quiz ||
-          (Array.isArray(d.data) && d.data.length > 0) ||
-          (Array.isArray(d.questions) && d.questions.length > 0))
+      (d.dynamicCourseHeading?.id ||
+        d.dynamicCourseHeading?.course_title ||
+        d.course?.id ||
+        d.support_page ||
+        d.quiz ||
+        (Array.isArray(d.data) && d.data.length > 0) ||
+        (Array.isArray(d.questions) && d.questions.length > 0))
     );
 
   // Track the key of the data already loaded to skip duplicate client-side fetch on initial mount
@@ -800,7 +800,7 @@ function DynamicPage({
                   }
                 }
               }
-            } catch (e) {}
+            } catch (e) { }
 
             setCourseData(sanitizeDynamicCourseData(data?.data));
             setError(null);
@@ -2303,7 +2303,7 @@ function DynamicPage({
         setcitylist(JSON.parse(cached));
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     const fetchcity = async () => {
       try {
@@ -2327,8 +2327,8 @@ function DynamicPage({
         setcitylist(list);
         try {
           sessionStorage.setItem(cacheKey, JSON.stringify(list));
-        } catch (e) {}
-      } catch (err) {}
+        } catch (e) { }
+      } catch (err) { }
     };
     fetchcity();
   }, [token, active_country, active_state]);
@@ -2358,7 +2358,7 @@ function DynamicPage({
         setstatelist(JSON.parse(cached));
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     const fetchstate = async () => {
       try {
@@ -2382,8 +2382,8 @@ function DynamicPage({
         setstatelist(list);
         try {
           sessionStorage.setItem(cacheKey, JSON.stringify(list));
-        } catch (e) {}
-      } catch (err) {}
+        } catch (e) { }
+      } catch (err) { }
     };
     fetchstate();
   }, [token, active_country, active_state]);
@@ -2401,7 +2401,7 @@ function DynamicPage({
         setfaq(JSON.parse(cached));
         return;
       }
-    } catch (e) {}
+    } catch (e) { }
 
     const timeout = setTimeout(() => {
       const Faq = async () => {
@@ -2440,7 +2440,7 @@ function DynamicPage({
           setfaq(list);
           try {
             sessionStorage.setItem(cacheKey, JSON.stringify(list));
-          } catch (e) {}
+          } catch (e) { }
         } catch (err) {
           console.error("Recent faq error:", err);
         }
@@ -2992,12 +2992,12 @@ function DynamicPage({
     courseData?.course_title ||
     (url_title
       ? url_title
-          .split("-")
-          .map(
-            (word) =>
-              word.charAt(0).toUpperCase() + word.slice(1)
-          )
-          .join(" ")
+        .split("-")
+        .map(
+          (word) =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        )
+        .join(" ")
       : "Course Details");
 
   const courseDescription =
@@ -3016,7 +3016,7 @@ function DynamicPage({
 
   const firstSchedule =
     Array.isArray(courseData?.courseSchedule) &&
-    courseData.courseSchedule.length > 0
+      courseData.courseSchedule.length > 0
       ? courseData.courseSchedule[0]
       : null;
 
@@ -3024,9 +3024,9 @@ function DynamicPage({
     if (!firstSchedule) return null;
     const baseFee = parseFloat(
       firstSchedule?.course_fees ??
-        firstSchedule?.discounted_price ??
-        firstSchedule?.fee_amount ??
-        0
+      firstSchedule?.discounted_price ??
+      firstSchedule?.fee_amount ??
+      0
     );
     const discountPct = parseFloat(firstSchedule?.discount_amt ?? 0);
     const calculatedAmount =
@@ -3054,8 +3054,8 @@ function DynamicPage({
     ? /^https?:\/\//i.test(courseImagePath)
       ? courseImagePath
       : `${API_BASE_URL.replace(/\/+$/, "")}/${String(
-          courseImagePath
-        ).replace(/^\/+/, "")}`
+        courseImagePath
+      ).replace(/^\/+/, "")}`
     : null;
 
   const courseSchema = useMemo(() => {
@@ -3144,8 +3144,8 @@ function DynamicPage({
           Array.isArray(courseData?.data)
             ? courseData.data
             : Array.isArray(courseData)
-            ? courseData
-            : null
+              ? courseData
+              : null
         }
         courseData={courseData?.course || courseData}
         loading={loading}
@@ -3315,62 +3315,62 @@ function DynamicPage({
 
               {Boolean(
                 courseData?.keyfeatures?.record_one ||
-                  courseData?.keyfeatures?.record_two ||
-                  courseData?.keyfeatures?.record_three ||
-                  courseData?.keyfeatures?.record_four ||
-                  courseData?.keyfeatures?.record_five ||
-                  courseData?.keyfeatures?.record_six ||
-                  courseData?.keyfeatures?.read_more
+                courseData?.keyfeatures?.record_two ||
+                courseData?.keyfeatures?.record_three ||
+                courseData?.keyfeatures?.record_four ||
+                courseData?.keyfeatures?.record_five ||
+                courseData?.keyfeatures?.record_six ||
+                courseData?.keyfeatures?.read_more
               ) && (
-                <button
-                  onClick={() => scrollToSection("Key Features")}
-                  className={`px-6 py-3 border-b-2 transition cursor-pointer 
+                  <button
+                    onClick={() => scrollToSection("Key Features")}
+                    className={`px-6 py-3 border-b-2 transition cursor-pointer 
               ${activeId === "Key Features"
-                      ? "border-purple-600 text-purple-600 font-semibold text-xs"
-                      : "border-transparent hover:text-purple-600 text-xs"
-                    }
+                        ? "border-purple-600 text-purple-600 font-semibold text-xs"
+                        : "border-transparent hover:text-purple-600 text-xs"
+                      }
             `}
-                >
-                  Key Features
-                </button>
-              )}
+                  >
+                    Key Features
+                  </button>
+                )}
 
               {Boolean(
                 whychooseusdata1?.heading ||
-                  whychooseusdata2?.heading ||
-                  whychooseusdata3?.heading ||
-                  whychooseusdata4?.heading
+                whychooseusdata2?.heading ||
+                whychooseusdata3?.heading ||
+                whychooseusdata4?.heading
               ) && (
-                <button
-                  onClick={() => scrollToSection("Why Choose Us")}
-                  className={`px-6 py-3 border-b-2 transition cursor-pointer 
+                  <button
+                    onClick={() => scrollToSection("Why Choose Us")}
+                    className={`px-6 py-3 border-b-2 transition cursor-pointer 
               ${activeId === "Why Choose Us"
-                      ? "border-purple-600 text-purple-600 font-semibold text-xs"
-                      : "border-transparent hover:text-purple-600 text-xs"
-                    }
+                        ? "border-purple-600 text-purple-600 font-semibold text-xs"
+                        : "border-transparent hover:text-purple-600 text-xs"
+                      }
             `}
-                >
-                  Why Choose Us
-                </button>
-              )}
+                  >
+                    Why Choose Us
+                  </button>
+                )}
 
               {Boolean(
                 courseData?.allHeadline?.new_learning_objectives &&
-                  (courseData?.whatyoulearn?.description ||
-                    (Array.isArray(pointers) && pointers.length > 0))
+                (courseData?.whatyoulearn?.description ||
+                  (Array.isArray(pointers) && pointers.length > 0))
               ) && (
-                <button
-                  onClick={() => scrollToSection("What You’ll Learn")}
-                  className={`px-6 py-3 border-b-2 transition cursor-pointer 
+                  <button
+                    onClick={() => scrollToSection("What You’ll Learn")}
+                    className={`px-6 py-3 border-b-2 transition cursor-pointer 
               ${activeId === "What You’ll Learn"
-                      ? "border-purple-600 text-purple-600 font-semibold text-xs"
-                      : "border-transparent hover:text-purple-600 text-xs"
-                    }
+                        ? "border-purple-600 text-purple-600 font-semibold text-xs"
+                        : "border-transparent hover:text-purple-600 text-xs"
+                      }
             `}
-                >
-                  What You’ll Learn
-                </button>
-              )}
+                  >
+                    What You’ll Learn
+                  </button>
+                )}
               {Array.isArray(courseData?.coursePrice) &&
                 courseData.coursePrice.length > 0 && (
                   <button
@@ -3796,11 +3796,10 @@ function DynamicPage({
                           </div>
 
                           <div
-                            className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                              keyfeatureisOpen
-                                ? "max-h-full opacity-100 mt-3"
-                                : "max-h-0 opacity-0"
-                            }`}
+                            className={`overflow-hidden transition-all duration-500 ease-in-out ${keyfeatureisOpen
+                              ? "max-h-full opacity-100 mt-3"
+                              : "max-h-0 opacity-0"
+                              }`}
                           >
                             <div className="bg-[#FAF8FE] p-4 border rounded-xl border-purple-100">
                               <div
@@ -3902,455 +3901,455 @@ function DynamicPage({
 
                 {/*  Why Choose Us Section */}
                 {Boolean(whychooseusdata1?.heading || whychooseusdata2?.heading || whychooseusdata3?.heading || whychooseusdata4?.heading) && (
-                <section id="Why Choose Us" className="py-5   max-sm:hidden ">
-                  <div className="flex justify-center items-center flex-col ">
-                    <div>
-                      {/* <RiGraduationCapFill className="text-[#2E318D] text-4xl rotate-350 ml-[-15px] mb-[-5px] " /> */}
-                      {/* <h2 className="font-bold text-xl text-[#2E318D] ">
+                  <section id="Why Choose Us" className="py-5   max-sm:hidden ">
+                    <div className="flex justify-center items-center flex-col ">
+                      <div>
+                        {/* <RiGraduationCapFill className="text-[#2E318D] text-4xl rotate-350 ml-[-15px] mb-[-5px] " /> */}
+                        {/* <h2 className="font-bold text-xl text-[#2E318D] ">
                         Why Choose Us
                       </h2> */}
-                    </div>
-                    {courseData?.allHeadline?.advantage && (
-                      <h2 className="heading max-w-[80%] m-auto  text-center">
-                        {courseData?.allHeadline?.advantage ||
-                          "Your Advantage with ScholarAcad"}
-                      </h2>
-                    )}
-                  </div>
-
-                  <div className="container  mx-auto w-full h-full">
-                    <div className="relative  wrap overflow-hidden p-10 h-full">
-                      <div className="absolute border-2 border-[#2E318D] border-opacity-20 h-full left-1/2 transform -translate-x-1/2"></div>
-                      {/* Card1 */}
-                      {whychooseusdata1?.heading && (
-                        <>
-                          <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
-                            <div className="order-1 w-5/12"></div>
-                            <div className="z-20 flex items-center order-1 relative">
-                              <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
-                                <h2 className="text-white font-semibold text-lg"></h2>
-                              </div>
-                              <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
-                            </div>
-                            <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#F07F39] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full    z-10">
-                                <span className="text-2xl font-bold border-b">
-                                  01
-                                </span>
-                                <div className="mt-3">
-                                  <img
-                                    src="/assets/landingpage/courses/check.svg"
-                                    alt="Logo 1"
-                                    className="h-8 w-auto object-contain"
-                                  />
-                                </div>
-                              </div>
-                              <div className="p-3 pl-20 text-left">
-                                <h3 className="text-gray-800 font-semibold text-lg">
-                                  {whychooseusdata1?.heading?.length > 150
-                                    ? whychooseusdata1?.heading.slice(0, 150) +
-                                    "..."
-                                    : whychooseusdata1?.heading}
-                                </h3>
-                                <p
-                                  title={whychooseusdata1?.description}
-                                  className="text-gray-600 text-sm mt-2 leading-relaxed"
-                                >
-                                  {whychooseusdata1?.description?.length > 300
-                                    ? whychooseusdata1?.description.slice(
-                                      0,
-                                      300,
-                                    ) + "..."
-                                    : whychooseusdata1?.description}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-
-                      {/* Card2 */}
-                      {whychooseusdata2?.heading && (
-                        <>
-                          <div className="mb-2 flex justify-between items-center w-full right-timeline relative">
-                            <div className="order-1 w-5/12"></div>
-                            <div className="z-20 flex items-center order-1 relative">
-                              <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
-                                <h2 className="text-white font-semibold text-lg"></h2>
-                              </div>
-                              <div className="absolute top-1/2 left-full w-[58px] h-0.5 bg-gray-700 transform -translate-y-1/2"></div>
-                            </div>
-                            <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible flex justify-between items-center">
-                              <div className="p-3 pr-20 z-20  text-left">
-                                <h3 className="text-gray-800 font-semibold text-lg">
-                                  {whychooseusdata2?.heading?.length > 150
-                                    ? whychooseusdata2?.heading.slice(0, 150) +
-                                    "..."
-                                    : whychooseusdata2?.heading}
-                                </h3>
-                                <p
-                                  title={whychooseusdata2?.description}
-                                  className="text-gray-600 text-sm mt-2 leading-relaxed"
-                                >
-                                  {whychooseusdata2?.description?.length > 300
-                                    ? whychooseusdata2?.description.slice(
-                                      0,
-                                      300,
-                                    ) + "..."
-                                    : whychooseusdata2?.description}
-                                </p>
-                              </div>
-                              <div className="absolute right-[-40px] top-1/2 -translate-y-1/2  bg-[#F49D9D] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
-                                <span className="text-2xl font-bold border-b">
-                                  02
-                                </span>
-                                <div className="mt-3">
-                                  <img
-                                    src="/assets/landingpage/courses/growth.svg"
-                                    alt="Logo 1"
-                                    className="h-8 w-auto object-contain"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      {/* Card3 */}
-                      {whychooseusdata3?.heading && (
-                        <>
-                          <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
-                            <div className="order-1 w-5/12"></div>
-                            <div className="z-20 flex items-center order-1 relative">
-                              <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
-                                <h2 className="text-white font-semibold text-lg"></h2>
-                              </div>
-                              <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
-                            </div>
-                            <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#FFCD7D] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
-                                <span className="text-2xl font-bold border-b">
-                                  03
-                                </span>
-                                <div className="mt-3">
-                                  <img
-                                    src="/assets/landingpage/courses/setting.svg"
-                                    alt="Logo 1"
-                                    className="h-8 w-auto object-contain"
-                                  />
-                                </div>
-                              </div>
-                              <div className="p-3 pl-20  text-left">
-                                <h3 className="text-gray-800 font-semibold text-lg">
-                                  {whychooseusdata3?.heading?.length > 150
-                                    ? whychooseusdata3?.heading.slice(0, 150) +
-                                    "..."
-                                    : whychooseusdata3?.heading}
-                                </h3>
-                                <p
-                                  title={whychooseusdata3?.description}
-                                  className="text-gray-600 text-sm mt-2 leading-relaxed"
-                                >
-                                  {whychooseusdata3?.description?.length > 300
-                                    ? whychooseusdata3?.description.slice(
-                                      0,
-                                      300,
-                                    ) + "..."
-                                    : whychooseusdata3?.description}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      {/* Card4 */}
-                      {whychooseusdata4?.heading && (
-                        <>
-                          <div className="mb-2 flex justify-between items-center w-full right-timeline relative">
-                            <div className="order-1 w-5/12"></div>
-                            <div className="z-20 flex items-center order-1 relative">
-                              <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
-                                <h2 className="text-white font-semibold text-lg"></h2>
-                              </div>
-                              <div className="absolute top-1/2 left-full w-[58px] h-0.5 bg-gray-700 transform -translate-y-1/2"></div>
-                            </div>
-                            <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible flex justify-between items-center">
-                              <div className="p-3 pr-20 z-20  text-left">
-                                <h3 className="text-gray-800 font-semibold text-lg">
-                                  {whychooseusdata4?.heading?.length > 150
-                                    ? whychooseusdata4?.heading.slice(0, 150) +
-                                    "..."
-                                    : whychooseusdata4?.heading}
-                                </h3>
-                                <p
-                                  title={whychooseusdata4?.description}
-                                  className="text-gray-600 text-sm mt-2 leading-relaxed"
-                                >
-                                  {whychooseusdata4?.description?.length > 300
-                                    ? whychooseusdata4?.description.slice(
-                                      0,
-                                      300,
-                                    ) + "..."
-                                    : whychooseusdata4?.description}
-                                </p>
-                              </div>
-                              <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 bg-[#78A736] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
-                                <span className="text-2xl font-bold border-b">
-                                  04
-                                </span>
-                                <div className="mt-3">
-                                  <img
-                                    src="/assets/landingpage/courses/skill.svg"
-                                    alt="Logo 1"
-                                    className="h-8 w-auto object-contain"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-
-                      {/* Card5 */}
-                      {whychooseusdata5?.heading && (
-                        <>
-                          <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
-                            <div className="order-1 w-5/12"></div>
-                            <div className="z-20 flex items-center order-1 relative">
-                              <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
-                                <h2 className="text-white font-semibold text-lg"></h2>
-                              </div>
-                              <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
-                            </div>
-                            <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#535D9D] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
-                                <span className="text-2xl font-bold border-b">
-                                  05
-                                </span>
-                                <div className="mt-3">
-                                  <img
-                                    src="/assets/landingpage/courses/leadership.svg"
-                                    alt="Logo 1"
-                                    className="h-8 w-auto object-contain"
-                                  />
-                                </div>
-                              </div>
-                              <div className="p-3 pl-20  text-left">
-                                <h3 className="text-gray-800 font-semibold text-lg">
-                                  {whychooseusdata5?.heading?.length > 150
-                                    ? whychooseusdata5?.heading.slice(0, 150) +
-                                    "..."
-                                    : whychooseusdata5?.heading}
-                                </h3>
-                                <p
-                                  title={whychooseusdata5?.description}
-                                  className="text-gray-600 text-sm mt-2 leading-relaxed"
-                                >
-                                  {whychooseusdata5?.description?.length > 300
-                                    ? whychooseusdata5?.description.slice(
-                                      0,
-                                      300,
-                                    ) + "..."
-                                    : whychooseusdata5?.description}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-
-                      {/* Card6 */}
-                      {whychooseusdata6?.heading && (
-                        <>
-                          <div className="mb-2 flex justify-between items-center w-full right-timeline relative">
-                            <div className="order-1 w-5/12"></div>
-                            <div className="z-20 flex items-center order-1 relative">
-                              <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
-                                <h2 className="text-white font-semibold text-lg"></h2>
-                              </div>
-                              <div className="absolute top-1/2 left-full w-[58px] h-0.5 bg-gray-700 transform -translate-y-1/2"></div>
-                            </div>
-                            <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible flex justify-between items-center">
-                              <div className="p-3 pr-20 z-20  text-left">
-                                <h3 className="text-gray-800 font-semibold text-lg">
-                                  {whychooseusdata6?.heading?.length > 150
-                                    ? whychooseusdata6?.heading.slice(0, 150) +
-                                    "..."
-                                    : whychooseusdata6?.heading}
-                                </h3>
-                                <p
-                                  title={whychooseusdata6?.description}
-                                  className="text-gray-600 text-sm mt-2 leading-relaxed"
-                                >
-                                  {whychooseusdata6?.description?.length > 300
-                                    ? whychooseusdata6?.description.slice(
-                                      0,
-                                      300,
-                                    ) + "..."
-                                    : whychooseusdata6?.description}
-                                </p>
-                              </div>
-                              <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 bg-[#E16AE8] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
-                                <span className="text-2xl font-bold border-b">
-                                  06
-                                </span>
-                                <div className="mt-3">
-                                  <img
-                                    src="/assets/landingpage/courses/premiumn_expert.svg"
-                                    alt="Logo 1"
-                                    className="h-8 w-auto object-contain"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-
-                      {/* Card7 */}
-                      {whychooseusdata7?.heading && (
-                        <>
-                          <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
-                            <div className="order-1 w-5/12"></div>
-                            <div className="z-20 flex items-center order-1 relative">
-                              <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
-                                <h2 className="text-white font-semibold text-lg"></h2>
-                              </div>
-                              <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
-                            </div>
-                            <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#17AFA8] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
-                                <span className="text-2xl font-bold border-b">
-                                  07
-                                </span>
-                                <div className="mt-3">
-                                  <img
-                                    src="/assets/landingpage/courses/leadership.svg"
-                                    alt="Logo 1"
-                                    className="h-10 w-auto object-contain"
-                                  />
-                                </div>
-                              </div>
-                              <div className="p-3 pl-20  text-left">
-                                <h3 className="text-gray-800 font-semibold text-lg">
-                                  {whychooseusdata7?.heading?.length > 150
-                                    ? whychooseusdata7?.heading.slice(0, 150) +
-                                    "..."
-                                    : whychooseusdata7?.heading}
-                                </h3>
-                                <p
-                                  title={whychooseusdata7?.description}
-                                  className="text-gray-600 text-sm mt-2 leading-relaxed"
-                                >
-                                  {whychooseusdata7?.description?.length > 300
-                                    ? whychooseusdata7?.description.slice(
-                                      0,
-                                      300,
-                                    ) + "..."
-                                    : whychooseusdata7?.description}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      {/* Card8 */}
-                      {whychooseusdata8?.heading && (
-                        <>
-                          <div className="mb-2 flex justify-between items-center w-full right-timeline relative">
-                            <div className="order-1 w-5/12"></div>
-                            <div className="z-20 flex items-center order-1 relative">
-                              <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
-                                <h2 className="text-white font-semibold text-lg"></h2>
-                              </div>
-                              <div className="absolute top-1/2 left-full w-[58px] h-0.5 bg-gray-700 transform -translate-y-1/2"></div>
-                            </div>
-                            <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible flex justify-between items-center">
-                              <div className="p-3 pr-20 z-20  text-left">
-                                <h3 className="text-gray-800 font-semibold text-lg">
-                                  {whychooseusdata8?.heading?.length > 150
-                                    ? whychooseusdata8?.heading.slice(0, 150) +
-                                    "..."
-                                    : whychooseusdata8?.heading}
-                                </h3>
-                                <p
-                                  title={whychooseusdata8?.description}
-                                  className="text-gray-600 text-sm mt-2 leading-relaxed"
-                                >
-                                  {whychooseusdata8?.description?.length > 300
-                                    ? whychooseusdata8?.description.slice(
-                                      0,
-                                      300,
-                                    ) + "..."
-                                    : whychooseusdata8?.description}
-                                </p>
-                              </div>
-                              <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 bg-[#6386FF] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full  z-10">
-                                <span className="text-2xl font-bold border-b">
-                                  08
-                                </span>
-                                <div className="mt-3">
-                                  <img
-                                    src="/assets/landingpage/courses/premiumn_expert.svg"
-                                    alt="Logo 1"
-                                    className="h-8 w-auto object-contain"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      {/* Card9 */}
-                      {whychooseusdata9?.heading && (
-                        <>
-                          <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
-                            <div className="order-1 w-5/12"></div>
-                            <div className="z-20 flex items-center order-1 relative">
-                              <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
-                                <h2 className="text-white font-semibold text-lg"></h2>
-                              </div>
-                              <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
-                            </div>
-                            <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
-                              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#5ED3FF] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
-                                <span className="text-2xl font-bold border-b">
-                                  09
-                                </span>
-                                <div className="mt-3">
-                                  <img
-                                    src="/assets/landingpage/courses/leadership.svg"
-                                    alt="Logo 1"
-                                    className="h-8 w-auto object-contain"
-                                  />
-                                </div>
-                              </div>
-                              <div className="p-3 pl-20  text-left">
-                                <h3 className="text-gray-800 font-semibold text-lg">
-                                  {whychooseusdata9?.heading?.length > 150
-                                    ? whychooseusdata9?.heading.slice(0, 150) +
-                                    "..."
-                                    : whychooseusdata9?.heading}
-                                </h3>
-                                <p
-                                  title={whychooseusdata9?.description}
-                                  className="text-gray-600 text-sm mt-2 leading-relaxed"
-                                >
-                                  {whychooseusdata9?.description?.length > 300
-                                    ? whychooseusdata9?.description.slice(
-                                      0,
-                                      300,
-                                    ) + "..."
-                                    : whychooseusdata9?.description}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </>
+                      </div>
+                      {courseData?.allHeadline?.advantage && (
+                        <h2 className="heading max-w-[80%] m-auto  text-center">
+                          {courseData?.allHeadline?.advantage ||
+                            "Your Advantage with ScholarAcad"}
+                        </h2>
                       )}
                     </div>
-                  </div>
-                </section>
+
+                    <div className="container  mx-auto w-full h-full">
+                      <div className="relative  wrap overflow-hidden p-10 h-full">
+                        <div className="absolute border-2 border-[#2E318D] border-opacity-20 h-full left-1/2 transform -translate-x-1/2"></div>
+                        {/* Card1 */}
+                        {whychooseusdata1?.heading && (
+                          <>
+                            <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
+                              <div className="order-1 w-5/12"></div>
+                              <div className="z-20 flex items-center order-1 relative">
+                                <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
+                                  <h2 className="text-white font-semibold text-lg"></h2>
+                                </div>
+                                <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
+                              </div>
+                              <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#F07F39] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full    z-10">
+                                  <span className="text-2xl font-bold border-b">
+                                    01
+                                  </span>
+                                  <div className="mt-3">
+                                    <img
+                                      src="/assets/landingpage/courses/check.svg"
+                                      alt="Logo 1"
+                                      className="h-8 w-auto object-contain"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="p-3 pl-20 text-left">
+                                  <h3 className="text-gray-800 font-semibold text-lg">
+                                    {whychooseusdata1?.heading?.length > 150
+                                      ? whychooseusdata1?.heading.slice(0, 150) +
+                                      "..."
+                                      : whychooseusdata1?.heading}
+                                  </h3>
+                                  <p
+                                    title={whychooseusdata1?.description}
+                                    className="text-gray-600 text-sm mt-2 leading-relaxed"
+                                  >
+                                    {whychooseusdata1?.description?.length > 300
+                                      ? whychooseusdata1?.description.slice(
+                                        0,
+                                        300,
+                                      ) + "..."
+                                      : whychooseusdata1?.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Card2 */}
+                        {whychooseusdata2?.heading && (
+                          <>
+                            <div className="mb-2 flex justify-between items-center w-full right-timeline relative">
+                              <div className="order-1 w-5/12"></div>
+                              <div className="z-20 flex items-center order-1 relative">
+                                <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
+                                  <h2 className="text-white font-semibold text-lg"></h2>
+                                </div>
+                                <div className="absolute top-1/2 left-full w-[58px] h-0.5 bg-gray-700 transform -translate-y-1/2"></div>
+                              </div>
+                              <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible flex justify-between items-center">
+                                <div className="p-3 pr-20 z-20  text-left">
+                                  <h3 className="text-gray-800 font-semibold text-lg">
+                                    {whychooseusdata2?.heading?.length > 150
+                                      ? whychooseusdata2?.heading.slice(0, 150) +
+                                      "..."
+                                      : whychooseusdata2?.heading}
+                                  </h3>
+                                  <p
+                                    title={whychooseusdata2?.description}
+                                    className="text-gray-600 text-sm mt-2 leading-relaxed"
+                                  >
+                                    {whychooseusdata2?.description?.length > 300
+                                      ? whychooseusdata2?.description.slice(
+                                        0,
+                                        300,
+                                      ) + "..."
+                                      : whychooseusdata2?.description}
+                                  </p>
+                                </div>
+                                <div className="absolute right-[-40px] top-1/2 -translate-y-1/2  bg-[#F49D9D] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
+                                  <span className="text-2xl font-bold border-b">
+                                    02
+                                  </span>
+                                  <div className="mt-3">
+                                    <img
+                                      src="/assets/landingpage/courses/growth.svg"
+                                      alt="Logo 1"
+                                      className="h-8 w-auto object-contain"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        {/* Card3 */}
+                        {whychooseusdata3?.heading && (
+                          <>
+                            <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
+                              <div className="order-1 w-5/12"></div>
+                              <div className="z-20 flex items-center order-1 relative">
+                                <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
+                                  <h2 className="text-white font-semibold text-lg"></h2>
+                                </div>
+                                <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
+                              </div>
+                              <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#FFCD7D] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
+                                  <span className="text-2xl font-bold border-b">
+                                    03
+                                  </span>
+                                  <div className="mt-3">
+                                    <img
+                                      src="/assets/landingpage/courses/setting.svg"
+                                      alt="Logo 1"
+                                      className="h-8 w-auto object-contain"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="p-3 pl-20  text-left">
+                                  <h3 className="text-gray-800 font-semibold text-lg">
+                                    {whychooseusdata3?.heading?.length > 150
+                                      ? whychooseusdata3?.heading.slice(0, 150) +
+                                      "..."
+                                      : whychooseusdata3?.heading}
+                                  </h3>
+                                  <p
+                                    title={whychooseusdata3?.description}
+                                    className="text-gray-600 text-sm mt-2 leading-relaxed"
+                                  >
+                                    {whychooseusdata3?.description?.length > 300
+                                      ? whychooseusdata3?.description.slice(
+                                        0,
+                                        300,
+                                      ) + "..."
+                                      : whychooseusdata3?.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        {/* Card4 */}
+                        {whychooseusdata4?.heading && (
+                          <>
+                            <div className="mb-2 flex justify-between items-center w-full right-timeline relative">
+                              <div className="order-1 w-5/12"></div>
+                              <div className="z-20 flex items-center order-1 relative">
+                                <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
+                                  <h2 className="text-white font-semibold text-lg"></h2>
+                                </div>
+                                <div className="absolute top-1/2 left-full w-[58px] h-0.5 bg-gray-700 transform -translate-y-1/2"></div>
+                              </div>
+                              <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible flex justify-between items-center">
+                                <div className="p-3 pr-20 z-20  text-left">
+                                  <h3 className="text-gray-800 font-semibold text-lg">
+                                    {whychooseusdata4?.heading?.length > 150
+                                      ? whychooseusdata4?.heading.slice(0, 150) +
+                                      "..."
+                                      : whychooseusdata4?.heading}
+                                  </h3>
+                                  <p
+                                    title={whychooseusdata4?.description}
+                                    className="text-gray-600 text-sm mt-2 leading-relaxed"
+                                  >
+                                    {whychooseusdata4?.description?.length > 300
+                                      ? whychooseusdata4?.description.slice(
+                                        0,
+                                        300,
+                                      ) + "..."
+                                      : whychooseusdata4?.description}
+                                  </p>
+                                </div>
+                                <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 bg-[#78A736] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
+                                  <span className="text-2xl font-bold border-b">
+                                    04
+                                  </span>
+                                  <div className="mt-3">
+                                    <img
+                                      src="/assets/landingpage/courses/skill.svg"
+                                      alt="Logo 1"
+                                      className="h-8 w-auto object-contain"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Card5 */}
+                        {whychooseusdata5?.heading && (
+                          <>
+                            <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
+                              <div className="order-1 w-5/12"></div>
+                              <div className="z-20 flex items-center order-1 relative">
+                                <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
+                                  <h2 className="text-white font-semibold text-lg"></h2>
+                                </div>
+                                <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
+                              </div>
+                              <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#535D9D] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
+                                  <span className="text-2xl font-bold border-b">
+                                    05
+                                  </span>
+                                  <div className="mt-3">
+                                    <img
+                                      src="/assets/landingpage/courses/leadership.svg"
+                                      alt="Logo 1"
+                                      className="h-8 w-auto object-contain"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="p-3 pl-20  text-left">
+                                  <h3 className="text-gray-800 font-semibold text-lg">
+                                    {whychooseusdata5?.heading?.length > 150
+                                      ? whychooseusdata5?.heading.slice(0, 150) +
+                                      "..."
+                                      : whychooseusdata5?.heading}
+                                  </h3>
+                                  <p
+                                    title={whychooseusdata5?.description}
+                                    className="text-gray-600 text-sm mt-2 leading-relaxed"
+                                  >
+                                    {whychooseusdata5?.description?.length > 300
+                                      ? whychooseusdata5?.description.slice(
+                                        0,
+                                        300,
+                                      ) + "..."
+                                      : whychooseusdata5?.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Card6 */}
+                        {whychooseusdata6?.heading && (
+                          <>
+                            <div className="mb-2 flex justify-between items-center w-full right-timeline relative">
+                              <div className="order-1 w-5/12"></div>
+                              <div className="z-20 flex items-center order-1 relative">
+                                <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
+                                  <h2 className="text-white font-semibold text-lg"></h2>
+                                </div>
+                                <div className="absolute top-1/2 left-full w-[58px] h-0.5 bg-gray-700 transform -translate-y-1/2"></div>
+                              </div>
+                              <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible flex justify-between items-center">
+                                <div className="p-3 pr-20 z-20  text-left">
+                                  <h3 className="text-gray-800 font-semibold text-lg">
+                                    {whychooseusdata6?.heading?.length > 150
+                                      ? whychooseusdata6?.heading.slice(0, 150) +
+                                      "..."
+                                      : whychooseusdata6?.heading}
+                                  </h3>
+                                  <p
+                                    title={whychooseusdata6?.description}
+                                    className="text-gray-600 text-sm mt-2 leading-relaxed"
+                                  >
+                                    {whychooseusdata6?.description?.length > 300
+                                      ? whychooseusdata6?.description.slice(
+                                        0,
+                                        300,
+                                      ) + "..."
+                                      : whychooseusdata6?.description}
+                                  </p>
+                                </div>
+                                <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 bg-[#E16AE8] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
+                                  <span className="text-2xl font-bold border-b">
+                                    06
+                                  </span>
+                                  <div className="mt-3">
+                                    <img
+                                      src="/assets/landingpage/courses/premiumn_expert.svg"
+                                      alt="Logo 1"
+                                      className="h-8 w-auto object-contain"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+
+                        {/* Card7 */}
+                        {whychooseusdata7?.heading && (
+                          <>
+                            <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
+                              <div className="order-1 w-5/12"></div>
+                              <div className="z-20 flex items-center order-1 relative">
+                                <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
+                                  <h2 className="text-white font-semibold text-lg"></h2>
+                                </div>
+                                <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
+                              </div>
+                              <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#17AFA8] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
+                                  <span className="text-2xl font-bold border-b">
+                                    07
+                                  </span>
+                                  <div className="mt-3">
+                                    <img
+                                      src="/assets/landingpage/courses/leadership.svg"
+                                      alt="Logo 1"
+                                      className="h-10 w-auto object-contain"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="p-3 pl-20  text-left">
+                                  <h3 className="text-gray-800 font-semibold text-lg">
+                                    {whychooseusdata7?.heading?.length > 150
+                                      ? whychooseusdata7?.heading.slice(0, 150) +
+                                      "..."
+                                      : whychooseusdata7?.heading}
+                                  </h3>
+                                  <p
+                                    title={whychooseusdata7?.description}
+                                    className="text-gray-600 text-sm mt-2 leading-relaxed"
+                                  >
+                                    {whychooseusdata7?.description?.length > 300
+                                      ? whychooseusdata7?.description.slice(
+                                        0,
+                                        300,
+                                      ) + "..."
+                                      : whychooseusdata7?.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        {/* Card8 */}
+                        {whychooseusdata8?.heading && (
+                          <>
+                            <div className="mb-2 flex justify-between items-center w-full right-timeline relative">
+                              <div className="order-1 w-5/12"></div>
+                              <div className="z-20 flex items-center order-1 relative">
+                                <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
+                                  <h2 className="text-white font-semibold text-lg"></h2>
+                                </div>
+                                <div className="absolute top-1/2 left-full w-[58px] h-0.5 bg-gray-700 transform -translate-y-1/2"></div>
+                              </div>
+                              <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible flex justify-between items-center">
+                                <div className="p-3 pr-20 z-20  text-left">
+                                  <h3 className="text-gray-800 font-semibold text-lg">
+                                    {whychooseusdata8?.heading?.length > 150
+                                      ? whychooseusdata8?.heading.slice(0, 150) +
+                                      "..."
+                                      : whychooseusdata8?.heading}
+                                  </h3>
+                                  <p
+                                    title={whychooseusdata8?.description}
+                                    className="text-gray-600 text-sm mt-2 leading-relaxed"
+                                  >
+                                    {whychooseusdata8?.description?.length > 300
+                                      ? whychooseusdata8?.description.slice(
+                                        0,
+                                        300,
+                                      ) + "..."
+                                      : whychooseusdata8?.description}
+                                  </p>
+                                </div>
+                                <div className="absolute right-[-40px] top-1/2 -translate-y-1/2 bg-[#6386FF] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full  z-10">
+                                  <span className="text-2xl font-bold border-b">
+                                    08
+                                  </span>
+                                  <div className="mt-3">
+                                    <img
+                                      src="/assets/landingpage/courses/premiumn_expert.svg"
+                                      alt="Logo 1"
+                                      className="h-8 w-auto object-contain"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                        {/* Card9 */}
+                        {whychooseusdata9?.heading && (
+                          <>
+                            <div className="mb-2  flex justify-between flex-row-reverse items-center w-full left-timeline relative">
+                              <div className="order-1 w-5/12"></div>
+                              <div className="z-20 flex items-center order-1 relative">
+                                <div className="bg-[#2E318D] w-6 h-6 rounded-full flex items-center justify-center shadow-xl z-20">
+                                  <h2 className="text-white font-semibold text-lg"></h2>
+                                </div>
+                                <div className="absolute top-1/2 right-full w-[60px]  h-0.5 bg-[#2E318D] transform -translate-y-1/2"></div>
+                              </div>
+                              <div className="order-1 relative w-5/12 bg-[#F7F3FF] rounded-2xl  overflow-visible">
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 bg-[#5ED3FF] text-white flex flex-col justify-center items-center w-25 h-25 rounded-r-full   z-10">
+                                  <span className="text-2xl font-bold border-b">
+                                    09
+                                  </span>
+                                  <div className="mt-3">
+                                    <img
+                                      src="/assets/landingpage/courses/leadership.svg"
+                                      alt="Logo 1"
+                                      className="h-8 w-auto object-contain"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="p-3 pl-20  text-left">
+                                  <h3 className="text-gray-800 font-semibold text-lg">
+                                    {whychooseusdata9?.heading?.length > 150
+                                      ? whychooseusdata9?.heading.slice(0, 150) +
+                                      "..."
+                                      : whychooseusdata9?.heading}
+                                  </h3>
+                                  <p
+                                    title={whychooseusdata9?.description}
+                                    className="text-gray-600 text-sm mt-2 leading-relaxed"
+                                  >
+                                    {whychooseusdata9?.description?.length > 300
+                                      ? whychooseusdata9?.description.slice(
+                                        0,
+                                        300,
+                                      ) + "..."
+                                      : whychooseusdata9?.description}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </section>
                 )}
                 {/* What You’ll Learn Section */}
                 {courseData?.allHeadline?.new_learning_objectives && (
@@ -4513,107 +4512,107 @@ function DynamicPage({
                   (courseData?.courseDescription?.curriculum &&
                     courseData.courseDescription.curriculum.replace(/<[^>]*>/g, "").trim() !== "") ||
                   courseData?.coursePDF) && (
-                  <div className="max-sm:p-4 py-5    ">
-                    <div className="bg-[#F7F3FF] rounded-md border border-gray-300 p-3">
-                      <div className="mt-1">
-                        {courseData?.courseCurriculumFAQ?.length > 0 ? (
-                          <>
-                            <h2 className="heading text-center md:max-w-[80%] m-auto">
-                              {courseData?.allHeadline?.curriculum}
-                            </h2>
-                          </>
-                        ) : (
-                          <>
-                            <RiGraduationCapFill className="text-[#2E318D] text-4xl rotate-350 ml-[-15px] mb-[-5px]" />
-                            <h2 className="font-bold text-xl text-[#2F328F]">
-                              {courseData?.allHeadline?.curriculum || "Curriculum"}
-                            </h2>
-                          </>
-                        )}
-                      </div>
-                      <div className=" my-2">
-                        <div className="flex justify-between items-center ">
-                          <div
-                            className="summernote-content"
-                            dangerouslySetInnerHTML={{
-                              __html: courseData?.courseDescription?.curriculum,
-                            }}
-                          />
-                          {courseData?.coursePDF && (
-                            <div className="flex justify-end items-end">
-                              {!allowDownload && (
-                                <FormModal
-                                  buttonText="Download Curriculum"
-                                  modalType="register"
-                                  service="Download Curriculum"
-                                />
-                              )}
-
-                              {allowDownload && (
-                                <button
-                                  className="bg-[#882CFB] text-white px-6 py-2 rounded-full"
-                                  disabled
-                                >
-                                  Downloading...
-                                </button>
-                              )}
-                            </div>
+                    <div className="max-sm:p-4 py-5    ">
+                      <div className="bg-[#F7F3FF] rounded-md border border-gray-300 p-3">
+                        <div className="mt-1">
+                          {courseData?.courseCurriculumFAQ?.length > 0 ? (
+                            <>
+                              <h2 className="heading text-center md:max-w-[80%] m-auto">
+                                {courseData?.allHeadline?.curriculum}
+                              </h2>
+                            </>
+                          ) : (
+                            <>
+                              <RiGraduationCapFill className="text-[#2E318D] text-4xl rotate-350 ml-[-15px] mb-[-5px]" />
+                              <h2 className="font-bold text-xl text-[#2F328F]">
+                                {courseData?.allHeadline?.curriculum || "Curriculum"}
+                              </h2>
+                            </>
                           )}
                         </div>
-                      </div>
+                        <div className=" my-2">
+                          <div className="flex justify-between items-center ">
+                            <div
+                              className="summernote-content"
+                              dangerouslySetInnerHTML={{
+                                __html: courseData?.courseDescription?.curriculum,
+                              }}
+                            />
+                            {courseData?.coursePDF && (
+                              <div className="flex justify-end items-end">
+                                {!allowDownload && (
+                                  <FormModal
+                                    buttonText="Download Curriculum"
+                                    modalType="register"
+                                    service="Download Curriculum"
+                                  />
+                                )}
 
-                      <div className="w-full grid grid-cols-1  gap-2 mt-4">
-                        {courseData?.courseCurriculumFAQ?.map((faq, i) => (
-                          <div
-                            key={i}
-                            className={`rounded-lg  border border-gray-300 transition-all duration-500 ease-in-out self-start ${openIndex === i
-                              ? "bg-white text-gray-800"
-                              : "bg-white text-gray-500"
-                              }`}
-                          >
-                            <button
-                              title={faq?.title || "NA"}
-                              onClick={() => toggleFAQ(i)}
-                              className="w-full cursor-pointer flex justify-between items-center px-6 py-3 text-left font-medium text-md focus:outline-none border-b border-gray-200"
-                            >
-                              <span>
-                                {faq?.title?.length > 150
-                                  ? faq.title.slice(0, 150) + "..."
-                                  : faq?.title}
-                              </span>
-
-                              <div
-                                className={`w-5 h-5 flex items-center justify-center rounded-md transition-all duration-300 ${openIndex === i
-                                  ? "bg-gray-200 text-black rotate-180"
-                                  : "bg-[#9B7CFF] text-white"
-                                  }`}
-                              >
-                                {openIndex === i ? (
-                                  <FaMinus className="text-xs" />
-                                ) : (
-                                  <FaPlus className="text-xs" />
+                                {allowDownload && (
+                                  <button
+                                    className="bg-[#882CFB] text-white px-6 py-2 rounded-full"
+                                    disabled
+                                  >
+                                    Downloading...
+                                  </button>
                                 )}
                               </div>
-                            </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="w-full grid grid-cols-1  gap-2 mt-4">
+                          {courseData?.courseCurriculumFAQ?.map((faq, i) => (
                             <div
-                              className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === i
-                                ? "max-h-[400px] overflow-y-auto opacity-100 px-6 "
-                                : "max-h-0 opacity-0 px-6"
+                              key={i}
+                              className={`rounded-lg  border border-gray-300 transition-all duration-500 ease-in-out self-start ${openIndex === i
+                                ? "bg-white text-gray-800"
+                                : "bg-white text-gray-500"
                                 }`}
                             >
+                              <button
+                                title={faq?.title || "NA"}
+                                onClick={() => toggleFAQ(i)}
+                                className="w-full cursor-pointer flex justify-between items-center px-6 py-3 text-left font-medium text-md focus:outline-none border-b border-gray-200"
+                              >
+                                <span>
+                                  {faq?.title?.length > 150
+                                    ? faq.title.slice(0, 150) + "..."
+                                    : faq?.title}
+                                </span>
+
+                                <div
+                                  className={`w-5 h-5 flex items-center justify-center rounded-md transition-all duration-300 ${openIndex === i
+                                    ? "bg-gray-200 text-black rotate-180"
+                                    : "bg-[#9B7CFF] text-white"
+                                    }`}
+                                >
+                                  {openIndex === i ? (
+                                    <FaMinus className="text-xs" />
+                                  ) : (
+                                    <FaPlus className="text-xs" />
+                                  )}
+                                </div>
+                              </button>
                               <div
-                                className="summernote-content"
-                                dangerouslySetInnerHTML={{
-                                  __html: faq?.description,
-                                }}
-                              />
+                                className={`overflow-hidden transition-all duration-500 ease-in-out ${openIndex === i
+                                  ? "max-h-[400px] overflow-y-auto opacity-100 px-6 "
+                                  : "max-h-0 opacity-0 px-6"
+                                  }`}
+                              >
+                                <div
+                                  className="summernote-content"
+                                  dangerouslySetInnerHTML={{
+                                    __html: faq?.description,
+                                  }}
+                                />
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
                 {/* Corporate Training Section */}
                 <div className="py-5 max-sm:p-3 mt-5 ">
@@ -4690,51 +4689,51 @@ function DynamicPage({
                   (courseData?.courseDescription?.eligibility &&
                     courseData.courseDescription.eligibility.replace(/<[^>]*>/g, "").trim() !== "") ||
                   (Array.isArray(certificatelist) && certificatelist.length > 0)) && (
-                  <section className="py-5 max-sm:p-3">
-                    <div className="relative rounded-md overflow-hidden ">
-                      <div
-                        className="absolute inset-0 bg-cover bg-center object-contain"
-                        style={{
-                          backgroundImage:
-                            "url('/assets/landingpage/certificate_bg.png')",
-                        }}
-                      ></div>
-                      <div className="relative grid grid-cols-1 md:grid-cols-[70%_30%] p-5">
-                        <div className="text-left text-white">
-                          {courseData?.allHeadline?.eligibility && (
-                            <h2 className="heading_white ">
-                              {courseData.allHeadline.eligibility}
-                            </h2>
-                          )}
-                          {courseData?.courseDescription?.eligibility && (
-                            <div
-                              className="summernote-content2 prose max-w-none mt-2 force-text-color"
-                              dangerouslySetInnerHTML={{
-                                __html: courseData.courseDescription.eligibility,
-                              }}
-                            ></div>
-                          )}
+                    <section className="py-5 max-sm:p-3">
+                      <div className="relative rounded-md overflow-hidden ">
+                        <div
+                          className="absolute inset-0 bg-cover bg-center object-contain"
+                          style={{
+                            backgroundImage:
+                              "url('/assets/landingpage/certificate_bg.png')",
+                          }}
+                        ></div>
+                        <div className="relative grid grid-cols-1 md:grid-cols-[70%_30%] p-5">
+                          <div className="text-left text-white">
+                            {courseData?.allHeadline?.eligibility && (
+                              <h2 className="heading_white ">
+                                {courseData.allHeadline.eligibility}
+                              </h2>
+                            )}
+                            {courseData?.courseDescription?.eligibility && (
+                              <div
+                                className="summernote-content2 prose max-w-none mt-2 force-text-color"
+                                dangerouslySetInnerHTML={{
+                                  __html: courseData.courseDescription.eligibility,
+                                }}
+                              ></div>
+                            )}
 
-                          <div className=" mt-2">
-                            {Array?.isArray(certificatelist) &&
-                              certificatelist?.map((point, i) => (
-                                <div
-                                  key={i}
-                                  className="flex gap-3 items-start mb-3"
-                                >
-                                  <IoCheckmarkCircleSharp className="text-white text-lg shrink-0 mt-1" />
-                                  <p className="text-white text-[15px]">
-                                    {point}
-                                  </p>
-                                </div>
-                              ))}
+                            <div className=" mt-2">
+                              {Array?.isArray(certificatelist) &&
+                                certificatelist?.map((point, i) => (
+                                  <div
+                                    key={i}
+                                    className="flex gap-3 items-start mb-3"
+                                  >
+                                    <IoCheckmarkCircleSharp className="text-white text-lg shrink-0 mt-1" />
+                                    <p className="text-white text-[15px]">
+                                      {point}
+                                    </p>
+                                  </div>
+                                ))}
+                            </div>
                           </div>
+                          <div></div>
                         </div>
-                        <div></div>
                       </div>
-                    </div>
-                  </section>
-                )}
+                    </section>
+                  )}
 
                 <section>
                   {/* Graph Card Section */}
@@ -6232,41 +6231,41 @@ function DynamicPage({
                   (courseData?.certificationText?.description &&
                     courseData.certificationText.description.replace(/<[^>]*>/g, "").trim() !== "") ||
                   courseData?.certificationImage?.image_path) && (
-                  <section className=" max-sm:p-3 py-5">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-sm:gap-10 item-start justify-center">
-                      <div>
-                        <h2 className="heading md:max-w-[90%] w-full  ">
-                          {courseData?.allHeadline?.certifications}
-                        </h2>
-                        {courseData?.certificationText?.description && (
-                          <div
-                            className="summernote-content prose max-w-none  "
-                            dangerouslySetInnerHTML={{
-                              __html: courseData.certificationText.description,
-                            }}
-                          ></div>
+                    <section className=" max-sm:p-3 py-5">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-sm:gap-10 item-start justify-center">
+                        <div>
+                          <h2 className="heading md:max-w-[90%] w-full  ">
+                            {courseData?.allHeadline?.certifications}
+                          </h2>
+                          {courseData?.certificationText?.description && (
+                            <div
+                              className="summernote-content prose max-w-none  "
+                              dangerouslySetInnerHTML={{
+                                __html: courseData.certificationText.description,
+                              }}
+                            ></div>
+                          )}
+                        </div>
+                        {courseData?.certificationImage?.image_path && (
+                          <div className="flex md:justify-end justify-center ">
+                            <div className="bg-gray-50 border-1 border-gray-200 rounded-lg  p-3 max-w-[70%]  flex justify-center item-center  w-full  ">
+                              <img
+                                src={normalizeImageUrl(
+                                  courseData.certificationImage.image_path,
+                                  "/assets/images/new-dynamic-course/certificate.jpg"
+                                )}
+                                alt="Certificate"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
+                                className="object-contain w-full h-auto rounded-md shadow-sm"
+                              />
+                            </div>
+                          </div>
                         )}
                       </div>
-                      {courseData?.certificationImage?.image_path && (
-                        <div className="flex md:justify-end justify-center ">
-                          <div className="bg-gray-50 border-1 border-gray-200 rounded-lg  p-3 max-w-[70%]  flex justify-center item-center  w-full  ">
-                            <img
-                              src={normalizeImageUrl(
-                                courseData.certificationImage.image_path,
-                                "/assets/images/new-dynamic-course/certificate.jpg"
-                              )}
-                              alt="Certificate"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
-                              className="object-contain w-full h-auto rounded-md shadow-sm"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </section>
-                )}
+                    </section>
+                  )}
 
                 {/* Get  Certified Section */}
                 {courseData?.allHeadline?.course_benefits && (
@@ -6743,19 +6742,19 @@ function DynamicPage({
 
                 {/* FAQ Section */}
                 {pmpcertificatetabs && pmpcertificatetabs.length > 0 && (
-                <section id="FAQs" className="">
-                  <section className="pb-7 max-sm:p-3">
-                    <div className="flex justify-center mb-3 ">
-                      <div>
-                        {/* <RiGraduationCapFill className="text-[#2E318D] text-4xl rotate-350 ml-[-15px] mb-[-5px] " /> */}
-                        <h2 className="heading  ">General FAQs</h2>
+                  <section id="FAQs" className="">
+                    <section className="pb-7 max-sm:p-3">
+                      <div className="flex justify-center mb-3 ">
+                        <div>
+                          {/* <RiGraduationCapFill className="text-[#2E318D] text-4xl rotate-350 ml-[-15px] mb-[-5px] " /> */}
+                          <h2 className="heading  ">General FAQs</h2>
+                        </div>
                       </div>
-                    </div>
-                    <div className="bg-[#F7F3FF] border border-gray-200 pb-2 pt-6 px-3 rounded-md">
-                      <Tabs tabs={pmpcertificatetabs} />
-                    </div>
+                      <div className="bg-[#F7F3FF] border border-gray-200 pb-2 pt-6 px-3 rounded-md">
+                        <Tabs tabs={pmpcertificatetabs} />
+                      </div>
+                    </section>
                   </section>
-                </section>
                 )}
 
                 {/* Contact Advisor card Section */}
@@ -7187,8 +7186,8 @@ async function getServerAuthToken(cookieToken) {
         Accept: "application/json",
       },
       body: JSON.stringify({
-        email: process.env.NEXT_PUBLIC_AUTH_EMAIL || "admin@hotelres.com",
-        password: process.env.NEXT_PUBLIC_AUTH_PASSWORD || "12345678",
+        email: process.env.NEXT_PUBLIC_AUTH_EMAIL || "koli.umesh@gmail.com",
+        password: process.env.NEXT_PUBLIC_AUTH_PASSWORD || "Radha@Rani26",
       }),
     });
     if (res.ok) {
@@ -7197,7 +7196,7 @@ async function getServerAuthToken(cookieToken) {
       if (t) cachedServerToken = t;
       return t;
     }
-  } catch (e) {}
+  } catch (e) { }
   return null;
 }
 
@@ -7242,8 +7241,8 @@ export async function getServerSideProps({ req, params }) {
   const url_title = isCountryPrefix
     ? slug[1]
     : slug.length >= 1
-    ? slug[0]
-    : null;
+      ? slug[0]
+      : null;
   const candidateSubSlug =
     quizIdx === -1
       ? (isCountryPrefix ? slug[2] : slug[1])?.toLowerCase() || null
@@ -7714,16 +7713,16 @@ export async function getServerSideProps({ req, params }) {
             body: JSON.stringify(
               isNotes
                 ? {
-                    slug: "Notes",
-                    course_id: url_title || null,
-                    country_id: ssrCountry,
-                    state_id: active_state || null,
-                  }
+                  slug: "Notes",
+                  course_id: url_title || null,
+                  country_id: ssrCountry,
+                  state_id: active_state || null,
+                }
                 : {
-                    course_id: url_title,
-                    country_id: ssrCountry,
-                    state_id: active_state || null,
-                  }
+                  course_id: url_title,
+                  country_id: ssrCountry,
+                  state_id: active_state || null,
+                }
             ),
           }).catch(() => null),
         ]);
@@ -7741,7 +7740,7 @@ export async function getServerSideProps({ req, params }) {
             courseInfo = json?.data?.course || null;
           }
         }
-      } catch (e) {}
+      } catch (e) { }
     } else {
       const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.DYNAMIC_PAGE}`, {
         method: "POST",
@@ -7753,16 +7752,16 @@ export async function getServerSideProps({ req, params }) {
         body: JSON.stringify(
           isNotes
             ? {
-                slug: "Notes",
-                course_id: null,
-                country_id: ssrCountry,
-                state_id: active_state || null,
-              }
+              slug: "Notes",
+              course_id: null,
+              country_id: ssrCountry,
+              state_id: active_state || null,
+            }
             : {
-                course_id: null,
-                country_id: ssrCountry,
-                state_id: active_state || null,
-              }
+              course_id: null,
+              country_id: ssrCountry,
+              state_id: active_state || null,
+            }
         ),
       }).catch(() => null);
       if (res && res.ok) {
@@ -7792,13 +7791,13 @@ export async function getServerSideProps({ req, params }) {
 
     const mergedData = json?.data
       ? sanitizeDynamicCourseData({
-          ...(json?.data || {}),
-          schema: courseInfo?.schema || json?.data?.schema || null,
-          course: courseInfo || json?.data?.course || null,
-          header_image: courseInfo?.header_image || json?.data?.header_image || null,
-          course_title: courseInfo?.course_title || json?.data?.course_title || null,
-          short_description: courseInfo?.short_description || json?.data?.short_description || null,
-        })
+        ...(json?.data || {}),
+        schema: courseInfo?.schema || json?.data?.schema || null,
+        course: courseInfo || json?.data?.course || null,
+        header_image: courseInfo?.header_image || json?.data?.header_image || null,
+        course_title: courseInfo?.course_title || json?.data?.course_title || null,
+        short_description: courseInfo?.short_description || json?.data?.short_description || null,
+      })
       : null;
 
     const resolvedCourseTitle =
@@ -7807,9 +7806,9 @@ export async function getServerSideProps({ req, params }) {
       courseInfo?.course_title ||
       (url_title
         ? url_title
-            .split("-")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ")
+          .split("-")
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(" ")
         : "Certification Training");
 
     const schemaData =
@@ -7817,30 +7816,30 @@ export async function getServerSideProps({ req, params }) {
       json?.data?.schema ||
       (isNotes
         ? generateSupportPageSchema({
-            title: metaTitle || `${resolvedCourseTitle} - Complete Study Notes & Revision Guide | ScholarAcad`,
-            description: metaDescription,
-            pageUrl,
-            courseName: resolvedCourseTitle,
-            courseData: mergedData,
-            breadcrumbs: [
-              { name: "Home", url: "/" },
-              { name: resolvedCourseTitle, url: `/${url_title || ""}` },
-              { name: "Notes & Revision Guide", url: pageUrl },
-            ],
-          })
+          title: metaTitle || `${resolvedCourseTitle} - Complete Study Notes & Revision Guide | ScholarAcad`,
+          description: metaDescription,
+          pageUrl,
+          courseName: resolvedCourseTitle,
+          courseData: mergedData,
+          breadcrumbs: [
+            { name: "Home", url: "/" },
+            { name: resolvedCourseTitle, url: `/${url_title || ""}` },
+            { name: "Notes & Revision Guide", url: pageUrl },
+          ],
+        })
         : generateCourseSchema({
-            courseName: resolvedCourseTitle,
-            courseDescription: metaDescription,
-            courseUrl: pageUrl,
-            courseCode: url_title,
-            keywords: metaKeywords,
-            courseData: mergedData,
-            breadcrumbs: [
-              { name: "Home", url: "/" },
-              { name: "All Courses", url: "/all-courses" },
-              { name: resolvedCourseTitle, url: `/${url_title || ""}` },
-            ],
-          }));
+          courseName: resolvedCourseTitle,
+          courseDescription: metaDescription,
+          courseUrl: pageUrl,
+          courseCode: url_title,
+          keywords: metaKeywords,
+          courseData: mergedData,
+          breadcrumbs: [
+            { name: "Home", url: "/" },
+            { name: "All Courses", url: "/all-courses" },
+            { name: resolvedCourseTitle, url: `/${url_title || ""}` },
+          ],
+        }));
 
     return {
       props: {
@@ -7858,9 +7857,9 @@ export async function getServerSideProps({ req, params }) {
     if (candidateSubSlug) return { notFound: true };
     const fallbackTitle = url_title
       ? url_title
-          .split("-")
-          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(" ")
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ")
       : "Certification Training";
     return {
       props: {
@@ -7873,10 +7872,10 @@ export async function getServerSideProps({ req, params }) {
         courseData: null,
         schemaData: url_title
           ? generateCourseSchema({
-              courseName: fallbackTitle,
-              courseUrl: pageUrl,
-              courseCode: url_title,
-            })
+            courseName: fallbackTitle,
+            courseUrl: pageUrl,
+            courseCode: url_title,
+          })
           : null,
       },
     };
