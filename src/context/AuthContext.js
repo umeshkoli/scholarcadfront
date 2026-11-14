@@ -3,6 +3,41 @@ import { API_BASE_URL, APIENDPOINTS } from "../../apiconfig";
 const AuthContext = createContext();
 import Cookies from "js-cookie";
 
+export const getStoredToken = () => {
+  if (typeof window === "undefined") return null;
+  try {
+    // 1. Search for any key starting with "twl_token"
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.toLowerCase().startsWith("twl_token")) {
+        const val = localStorage.getItem(key);
+        if (val && typeof val === "string" && val.trim().length > 10) {
+          return val.trim();
+        }
+      }
+    }
+    // 2. Also check if key contains "twl_token" anywhere
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.toLowerCase().includes("twl_token")) {
+        const val = localStorage.getItem(key);
+        if (val && typeof val === "string" && val.trim().length > 10) {
+          return val.trim();
+        }
+      }
+    }
+    // 3. Fallbacks
+    const fallback =
+      localStorage.getItem("access_token") ||
+      localStorage.getItem("token") ||
+      Cookies.get("access_token") ||
+      null;
+    return fallback ? String(fallback).trim() : null;
+  } catch (e) {
+    return null;
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -33,7 +68,7 @@ export const AuthProvider = ({ children }) => {
               credentials: "include",
             });
             xsrfToken = Cookies.get("XSRF-TOKEN");
-          } catch (csrfErr) {}
+          } catch (csrfErr) { }
         }
 
         const headers = {
@@ -77,6 +112,10 @@ export const AuthProvider = ({ children }) => {
             secure: isHttps,
             sameSite: "Lax",
           });
+          try {
+            localStorage.setItem("twl_token_admin", authToken);
+            localStorage.setItem("access_token", authToken);
+          } catch (e) { }
           setToken(authToken);
           if (data?.user) {
             setUser(data.user);
@@ -137,7 +176,7 @@ export const AuthProvider = ({ children }) => {
       if (savedPromo) setPromoList(JSON.parse(savedPromo));
     } catch (e) { }
 
-    const savedToken = Cookies.get("access_token") || null;
+    const savedToken = getStoredToken();
     if (savedToken) {
       setToken(savedToken);
       setLoading(false);

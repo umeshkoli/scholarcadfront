@@ -6,7 +6,7 @@ import { CgSmileSad } from "react-icons/cg";
 import Link from "next/link";
 import { encryptId } from "@/utils/encryption";
 import Pagination from "@/Components/Pagination";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, getStoredToken } from "@/context/AuthContext";
 import { API_BASE_URL, APIENDPOINTS } from "../../apiconfig";
 import Loader from "@/Components/loader";
 import { CiCircleCheck, CiSearch } from "react-icons/ci";
@@ -29,10 +29,11 @@ function blogs() {
   useEffect(() => {
     const fetchBlogTypes = async () => {
       try {
+        const activeToken = token || getStoredToken();
         const headers = {
           "Content-Type": "application/json",
           Accept: "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
         };
         const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.BLOG_TYPE}`, {
           headers,
@@ -68,10 +69,11 @@ function blogs() {
         if (activeTab2 !== 0) {
           payload.course_category_id = activeTab2;
         }
+        const activeToken = token || getStoredToken();
         const headers = {
           "Content-Type": "application/json",
           Accept: "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
         };
         const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.BLOG_LIST}`, {
           method: "POST",
@@ -165,6 +167,7 @@ function blogs() {
     try {
       setLoading(true);
       setResult("");
+      const activeToken = token || getStoredToken();
       const response = await fetch(
         `${API_BASE_URL}${APIENDPOINTS.BLOG_SEARCH}`,
         {
@@ -172,7 +175,7 @@ function blogs() {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            Authorization: `Bearer ${token}`,
+            ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
           },
           body: JSON.stringify({
             filter: searchText,

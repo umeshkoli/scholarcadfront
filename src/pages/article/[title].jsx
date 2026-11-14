@@ -20,7 +20,7 @@ import { useRouter } from "next/router";
 import DOMPurify from "dompurify";
 import { decryptId } from "@/utils/encryption";
 import { encryptId } from "@/utils/encryption";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, getStoredToken } from "@/context/AuthContext";
 import Loader from "@/Components/loader";
 import { API_BASE_URL, APIENDPOINTS } from "../../../apiconfig";
 import { getBlogImageUrl } from "@/utils/imageHelper";
@@ -83,10 +83,11 @@ function BlogDetails({ initialBlog }) {
     const fetchBlog = async () => {
       setLoading(true);
       try {
+        const activeToken = token || getStoredToken();
         const headers = {
           "Content-Type": "application/json",
           Accept: "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
         };
 
         // 1. Try direct fetch with blogTitle
@@ -192,7 +193,8 @@ function BlogDetails({ initialBlog }) {
 
   //  Fetch recent blogs when token is ready
   useEffect(() => {
-    if (!token) return;
+    const activeToken = token || getStoredToken();
+    if (!activeToken) return;
 
     const fetchRecentBlogs = async () => {
       try {
@@ -201,7 +203,7 @@ function BlogDetails({ initialBlog }) {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${activeToken}`,
           },
         });
         if (!res.ok) {

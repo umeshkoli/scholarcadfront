@@ -1,6 +1,6 @@
 import Footer from "@/Components/Footer";
 import Navbar from "@/Components/Navbar";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, getStoredToken } from "@/context/AuthContext";
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { API_BASE_URL, APIENDPOINTS } from "../../apiconfig";
@@ -45,12 +45,13 @@ export default function Sitemap() {
 
   // 🔹 Fetch blogs by selected blog type ID
   const fetchByType = async (typeId) => {
+    const activeToken = token || getStoredToken();
     const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.BLOG_LIST}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json",
-        Authorization: `Bearer ${token}`,
+        ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
       },
       body: JSON.stringify({
         blog_type_id: typeId,
@@ -63,7 +64,8 @@ export default function Sitemap() {
     return data?.data || [];
   };
   useEffect(() => {
-    if (!token) return;
+    const activeToken = token || getStoredToken();
+    if (!activeToken) return;
     const fetchAllData = async () => {
       try {
         setLoadingBlogs(true);

@@ -6,7 +6,7 @@ import { CgSmileSad } from "react-icons/cg";
 import Link from "next/link";
 import { encryptId } from "@/utils/encryption";
 import Pagination from "@/Components/Pagination";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, getStoredToken } from "@/context/AuthContext";
 import { API_BASE_URL, APIENDPOINTS } from "../../../apiconfig";
 import Loader from "@/Components/loader";
 import { CiCircleCheck, CiSearch } from "react-icons/ci";
@@ -107,10 +107,11 @@ function blogs() {
 
     const fetchBlogTypes = async () => {
       try {
+        const activeToken = token || getStoredToken();
         const headers = {
           "Content-Type": "application/json",
           Accept: "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
         };
         const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.BLOG_TYPE}`, { headers });
         if (!res.ok) {
@@ -170,10 +171,11 @@ function blogs() {
           }
         }
 
+        const activeToken = token || getStoredToken();
         const headers = {
           "Content-Type": "application/json",
           Accept: "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
         };
 
         const res = await fetch(endpoint, {

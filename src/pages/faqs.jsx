@@ -6,7 +6,7 @@ import { CgSmileSad } from "react-icons/cg";
 import Link from "next/link";
 import { encryptId } from "@/utils/encryption";
 import Pagination from "@/Components/Pagination";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, getStoredToken } from "@/context/AuthContext";
 import { API_BASE_URL, APIENDPOINTS } from "../../apiconfig";
 import Loader from "@/Components/loader";
 import { FaAnglesDown } from "react-icons/fa6";
@@ -23,14 +23,15 @@ function FAQ() {
   const [perPage, setPerPage] = useState(9);
 
   useEffect(() => {
-    if (!token) return;
+    const activeToken = token || getStoredToken();
+    if (!activeToken) return;
     const fetchBlogTypes = async () => {
       try {
         const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.BLOG_TYPE}`, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${activeToken}`,
           },
         });
         if (!res.ok) {
@@ -51,7 +52,8 @@ function FAQ() {
 
   // 🔹 Fetch blogs by selected blog type ID
   useEffect(() => {
-    if (!token || !activeTab) return;
+    const activeToken = token || getStoredToken();
+    if (!activeToken || !activeTab) return;
     const fetchBlogsByType = async () => {
       try {
         setLoadingBlogs(true);
@@ -60,7 +62,7 @@ function FAQ() {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${activeToken}`,
           },
           body: JSON.stringify({
             blog_type_id: activeTab,
