@@ -16,7 +16,7 @@ import { getBlogImageUrl } from "@/utils/imageHelper";
 
 function blogs() {
   const router = useRouter();
-  const { token } = useAuth();
+  const { token, login } = useAuth();
   const [activeTab, setActiveTab] = useState(null);
   const [blogTypes, setBlogTypes] = useState([]);
   const [blogs, setBlogs] = useState([]);

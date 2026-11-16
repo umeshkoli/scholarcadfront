@@ -39,8 +39,18 @@ export const getStoredToken = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(() => {
+    if (typeof window !== "undefined") {
+      return getStoredToken();
+    }
+    return null;
+  });
+  const [loading, setLoading] = useState(() => {
+    if (typeof window !== "undefined") {
+      return !getStoredToken();
+    }
+    return true;
+  });
   const [categories, setCategories] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
   const [user, setUser] = useState(null);
@@ -59,22 +69,11 @@ export const AuthProvider = ({ children }) => {
       setLoading(true);
       let res = null;
       try {
-        // Obtain XSRF-TOKEN cookie if missing
-        let xsrfToken = Cookies.get("XSRF-TOKEN");
-        if (!xsrfToken && typeof window !== "undefined") {
-          try {
-            await fetch(`${API_BASE_URL}/login`, {
-              method: "GET",
-              credentials: "include",
-            });
-            xsrfToken = Cookies.get("XSRF-TOKEN");
-          } catch (csrfErr) { }
-        }
-
         const headers = {
           "Content-Type": "application/json",
           Accept: "application/json",
         };
+        const xsrfToken = Cookies.get("XSRF-TOKEN");
         if (xsrfToken) {
           headers["X-XSRF-TOKEN"] = decodeURIComponent(xsrfToken);
         }
@@ -88,6 +87,29 @@ export const AuthProvider = ({ children }) => {
             password,
           }),
         });
+
+        // If CSRF mismatch (419), fetch /login once to capture session & XSRF cookie, then retry
+        if (res && res.status === 419 && typeof window !== "undefined") {
+          try {
+            await fetch(`${API_BASE_URL}/login`, {
+              method: "GET",
+              credentials: "include",
+            });
+            const refreshedXsrf = Cookies.get("XSRF-TOKEN");
+            if (refreshedXsrf) {
+              headers["X-XSRF-TOKEN"] = decodeURIComponent(refreshedXsrf);
+            }
+            res = await fetch(`${API_BASE_URL}${APIENDPOINTS.LOGIN}`, {
+              method: "POST",
+              headers,
+              credentials: "include",
+              body: JSON.stringify({
+                email,
+                password,
+              }),
+            });
+          } catch (csrfErr) {}
+        }
       } catch (fetchErr) {
         console.warn("Login fetch network warning:", fetchErr?.message || fetchErr);
         return { success: false, error: fetchErr?.message || "Failed to fetch" };
@@ -108,11 +130,12 @@ export const AuthProvider = ({ children }) => {
         if (authToken) {
           const isHttps = typeof window !== "undefined" && window.location.protocol === "https:";
           Cookies.set("access_token", authToken, {
-            expires: 1,
+            expires: 7,
             secure: isHttps,
             sameSite: "Lax",
           });
           try {
+            localStorage.setItem("twl_token", authToken);
             localStorage.setItem("twl_token_admin", authToken);
             localStorage.setItem("access_token", authToken);
           } catch (e) { }
@@ -140,13 +163,14 @@ export const AuthProvider = ({ children }) => {
 
   const logoutUser = () => {
     Cookies.remove("access_token");
+    try {
+      localStorage.removeItem("twl_token");
+      localStorage.removeItem("twl_token_admin");
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("auth_user");
+    } catch (e) { }
     setToken(null);
     setUser(null);
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.removeItem("auth_user");
-      } catch (e) { }
-    }
   };
 
   // Sync state from cookies / storage after mount & only login if no token exists

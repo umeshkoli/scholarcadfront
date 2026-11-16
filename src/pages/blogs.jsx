@@ -14,8 +14,8 @@ import { CiWarning } from "react-icons/ci";
 import { CiCircleRemove } from "react-icons/ci";
 import { getBlogImageUrl } from "@/utils/imageHelper";
 function blogs() {
-  const { token } = useAuth();
-  const [activeTab, setActiveTab] = useState(null);
+  const { token, login } = useAuth();
+  const [activeTab, setActiveTab] = useState(239);
   const [blogTypes, setBlogTypes] = useState([]);
   const [blogs, setBlogs] = useState([]);
   const [loadingBlogs, setLoadingBlogs] = useState(false);
@@ -38,6 +38,25 @@ function blogs() {
         const res = await fetch(`${API_BASE_URL}${APIENDPOINTS.BLOG_TYPE}`, {
           headers,
         });
+        if (res.status === 401 && login) {
+          const loginRes = await login();
+          if (loginRes?.success && loginRes?.token) {
+            const retryRes = await fetch(`${API_BASE_URL}${APIENDPOINTS.BLOG_TYPE}`, {
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${loginRes.token}`,
+              },
+            });
+            if (retryRes.ok) {
+              const retryData = await retryRes.json();
+              if (retryData?.data?.length > 0) {
+                setBlogTypes(retryData.data);
+                return;
+              }
+            }
+          }
+        }
         if (!res.ok) {
           console.warn("HTTP error! Status:", res.status);
           return;
@@ -80,6 +99,28 @@ function blogs() {
           headers,
           body: JSON.stringify(payload),
         });
+        if (res?.status === 401 && login) {
+          const loginRes = await login();
+          if (loginRes?.success && loginRes?.token) {
+            const retryRes = await fetch(`${API_BASE_URL}${APIENDPOINTS.BLOG_LIST}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+                Authorization: `Bearer ${loginRes.token}`,
+              },
+              body: JSON.stringify(payload),
+            });
+            if (retryRes.ok) {
+              const retryData = await retryRes.json();
+              setBlogs(retryData?.data || []);
+              setCurrentPage(retryData?.pagination?.current_page || 1);
+              setTotalPages(retryData?.pagination?.last_page || 1);
+              setPerPage(retryData?.pagination?.per_page || 6);
+              return;
+            }
+          }
+        }
         if (!res.ok) {
           console.warn("HTTP error! Status:", res?.status);
           setBlogs([]);

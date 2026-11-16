@@ -35,7 +35,7 @@ const nunito = Nunito({
   weight: ["400", "700"],
 });
 function BlogDetails({ initialBlog }) {
-  const { token } = useAuth();
+  const { token, login } = useAuth();
   const router = useRouter();
   const [blog, setBlog] = useState(initialBlog || null);
   const [loading, setLoading] = useState(!initialBlog);
