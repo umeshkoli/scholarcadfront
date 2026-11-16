@@ -134,7 +134,7 @@ function ConsultingDetails() {
     <>
       <Navbar />
       {/* style={{
-            backgroundImage: `url(${API_BASE_URL}/master/secure-documents?path=${consultingdetail?.pages_img} ||
+            backgroundImage: `url(${API_BASE_URL}/master/secure-documents?v=2&path=${consultingdetail?.pages_img} ||
               "/assets/landingpage/consulting_herosection_bg.svg"
             })`,
           }} */}

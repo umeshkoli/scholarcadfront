@@ -773,7 +773,7 @@ export default function LandingPage() {
               <img
                 src="/assets/landingpage/secondsection_leftsideimg.png"
                 //  src={
-                //     `${API_BASE_URL}/master/secure-documents?path=
+                //     `${API_BASE_URL}/master/secure-documents?v=2&path=
                 //               ${sectionView[1]?.image_one}` ||
                 //     "/assets/landingpage/secondsection_leftsideimg.png"
                 //   }
@@ -1272,7 +1272,7 @@ export default function LandingPage() {
                           e.currentTarget.dataset.triedLive = "true";
                           const clean = (Recentblogs[0]?.header_image || Recentblogs[0]?.image || "").replace(/^\/+/, "");
                           if (clean) {
-                            e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                            e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?v=2&path=${encodeURIComponent(clean)}`;
                             return;
                           }
                         }

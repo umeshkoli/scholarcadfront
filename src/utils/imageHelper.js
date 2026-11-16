@@ -42,7 +42,7 @@ export function getBlogImageUrl(item) {
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
     const docMatch = trimmed.match(/\/(documents\/.+)$/i);
     if (docMatch && docMatch[1]) {
-      return `${API_BASE_URL}/master/secure-documents?path=${encodeURIComponent(decodeURIComponent(docMatch[1]))}`;
+      return `${API_BASE_URL}/master/secure-documents?v=2&path=${encodeURIComponent(decodeURIComponent(docMatch[1]))}`;
     }
     return encodeURI(trimmed);
   }
@@ -54,7 +54,7 @@ export function getBlogImageUrl(item) {
   }
 
   // Backend uploaded file path - route via local backend proxy
-  return `${API_BASE_URL}/master/secure-documents?path=${encodeURIComponent(cleanPath)}`;
+  return `${API_BASE_URL}/master/secure-documents?v=2&path=${encodeURIComponent(cleanPath)}`;
 }
 
 export const DEFAULT_COURSE_FALLBACK = "/assets/landingpage/courses/course1.jpg";
@@ -111,8 +111,8 @@ export function getCourseImageUrl(item, fallback = DEFAULT_COURSE_FALLBACK) {
 
   // 3. Backend uploaded file path under documents/ (e.g. documents/Scholar Acad/Course/...)
   if (cleanPath.startsWith("documents/")) {
-    const encoded = cleanPath.split("/").map(seg => encodeURIComponent(seg)).join("/");
-    return `${rawBackend}/${encoded}`;
+    // /documents/... is not served directly (404); use the secure-documents route via the proxy
+    return `${API_BASE_URL}/master/secure-documents?v=2&path=${encodeURIComponent(cleanPath)}`;
   }
 
   // 4. Other assets paths
@@ -126,12 +126,12 @@ export function getCourseImageUrl(item, fallback = DEFAULT_COURSE_FALLBACK) {
   }
 
   // 6. Default to backend master route
-  return `${rawBackend}/master/secure-documents?path=${encodeURIComponent(cleanPath)}`;
+  return `${rawBackend}/master/secure-documents?v=2&path=${encodeURIComponent(cleanPath)}`;
 }
 
 export function getLiveDocumentUrl(imagePath) {
   if (!imagePath || typeof imagePath !== "string") return DEFAULT_COURSE_FALLBACK;
   const cleanPath = imagePath.trim().replace(/^\/+/, "");
-  return `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(cleanPath)}`;
+  return `https://knowledgeadmin.scholaracad.com/master/secure-documents?v=2&path=${encodeURIComponent(cleanPath)}`;
 }
 

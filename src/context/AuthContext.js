@@ -3,6 +3,11 @@ import { API_BASE_URL, APIENDPOINTS } from "../../apiconfig";
 const AuthContext = createContext();
 import Cookies from "js-cookie";
 
+// Website visitors never log in. The backend allows the website's APIs without a
+// JWT, so when no real token exists we use this placeholder. It keeps the many
+// `if (!token) return;` checks in components from blocking public API calls.
+export const PUBLIC_TOKEN = "public-website";
+
 export const getStoredToken = () => {
   // 0. Static token from env (useful for live server or static auth)
   if (process.env.NEXT_PUBLIC_STATIC_AUTH_TOKEN) {
@@ -10,7 +15,7 @@ export const getStoredToken = () => {
     if (envToken.length > 10) return envToken;
   }
 
-  if (typeof window === "undefined") return null;
+  if (typeof window === "undefined") return PUBLIC_TOKEN;
   try {
     // 1. Search for any key starting with "twl_token"
     for (let i = 0; i < localStorage.length; i++) {
@@ -38,25 +43,15 @@ export const getStoredToken = () => {
       localStorage.getItem("token") ||
       Cookies.get("access_token") ||
       null;
-    return fallback ? String(fallback).trim() : null;
+    return fallback ? String(fallback).trim() : PUBLIC_TOKEN;
   } catch (e) {
-    return null;
+    return PUBLIC_TOKEN;
   }
 };
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(() => {
-    if (typeof window !== "undefined") {
-      return getStoredToken();
-    }
-    return null;
-  });
-  const [loading, setLoading] = useState(() => {
-    if (typeof window !== "undefined") {
-      return !getStoredToken();
-    }
-    return true;
-  });
+  const [token, setToken] = useState(() => getStoredToken());
+  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
   const [user, setUser] = useState(null);
@@ -67,10 +62,11 @@ export const AuthProvider = ({ children }) => {
     return userLocation?.raw?.country?.toLowerCase() || "in";
   }, [userLocation]);
 
-  const DEFAULT_EMAIL = process.env.NEXT_PUBLIC_AUTH_EMAIL || "koli.umesh@gmail.com";
-  const DEFAULT_PASSWORD = process.env.NEXT_PUBLIC_AUTH_PASSWORD || "Radha@Rani26";
-
-  const loginUser = async (email = DEFAULT_EMAIL, password = DEFAULT_PASSWORD) => {
+  // No hardcoded/default credentials: the public website does not auto-login.
+  const loginUser = async (email, password) => {
+    if (!email || !password) {
+      return { success: false, message: "Public website: login not required" };
+    }
     try {
       setLoading(true);
       let res = null;
@@ -175,7 +171,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("access_token");
       localStorage.removeItem("auth_user");
     } catch (e) { }
-    setToken(null);
+    setToken(PUBLIC_TOKEN);
     setUser(null);
   };
 
@@ -206,13 +202,9 @@ export const AuthProvider = ({ children }) => {
       if (savedPromo) setPromoList(JSON.parse(savedPromo));
     } catch (e) { }
 
-    const savedToken = getStoredToken();
-    if (savedToken) {
-      setToken(savedToken);
-      setLoading(false);
-    } else {
-      loginUser();
-    }
+    // Use a stored token if one exists, otherwise public mode (no auto-login)
+    setToken(getStoredToken());
+    setLoading(false);
   }, []);
 
   // Fetch categories once token is ready
@@ -246,16 +238,9 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        // Handle expired or invalid token by refreshing and retrying once
-        if (res.status === 401 && !isRetry) {
-          console.warn(
-            "Categories API returned 401 (token invalid or expired). Refreshing session..."
-          );
-          Cookies.remove("access_token");
-          const loginRes = await loginUser();
-          if (loginRes?.success && loginRes?.token && !isCancelled) {
-            return fetchCategories(loginRes.token, true);
-          }
+        // Categories API is public; a 401 here means the backend config changed
+        if (res.status === 401) {
+          console.warn("Categories API returned 401 (expected to be public).");
           return;
         }
 

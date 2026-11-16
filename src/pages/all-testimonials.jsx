@@ -179,7 +179,7 @@ export default function Sitemap() {
                   <div className="w-14 h-14 rounded-full border-2 border-[#882CFB] flex items-center justify-center overflow-hidden bg-indigo-100">
                     {item?.image ? (
                       <img
-                        src={`${API_BASE_URL}/master/secure-documents?path=${item.image}`}
+                        src={`${API_BASE_URL}/master/secure-documents?v=2&path=${item.image}`}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />

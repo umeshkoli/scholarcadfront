@@ -329,7 +329,7 @@ function BlogDetails({ initialBlog }) {
                     data-aos="fade-up"
                     src={
                       blog?.header_image
-                        ? `${API_BASE_URL}/master/secure-documents?path=${blog?.header_image}`
+                        ? `${API_BASE_URL}/master/secure-documents?v=2&path=${blog?.header_image}`
                         : ""
                     }
                     alt={blog?.title}
@@ -347,7 +347,7 @@ function BlogDetails({ initialBlog }) {
                             e.currentTarget.dataset.triedLive = "true";
                             const clean = (blog?.header_image || blog?.image || "").replace(/^\/+/, "");
                             if (clean) {
-                              e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                              e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?v=2&path=${encodeURIComponent(clean)}`;
                               return;
                             }
                           }
@@ -470,7 +470,7 @@ function BlogDetails({ initialBlog }) {
                               e.currentTarget.dataset.triedLive = "true";
                               const clean = (blog?.header_image || blog?.image || "").replace(/^\/+/, "");
                               if (clean) {
-                                e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                                e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?v=2&path=${encodeURIComponent(clean)}`;
                                 return;
                               }
                             }

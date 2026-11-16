@@ -534,7 +534,7 @@ function blogs() {
                                       e.currentTarget.dataset.triedLive = "true";
                                       const clean = (blog?.header_image || blog?.image || "").replace(/^\/+/, "");
                                       if (clean) {
-                                        e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?path=${encodeURIComponent(clean)}`;
+                                        e.currentTarget.src = `https://knowledgeadmin.scholaracad.com/master/secure-documents?v=2&path=${encodeURIComponent(clean)}`;
                                         return;
                                       }
                                     }
