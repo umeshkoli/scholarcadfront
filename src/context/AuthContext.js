@@ -4,6 +4,12 @@ const AuthContext = createContext();
 import Cookies from "js-cookie";
 
 export const getStoredToken = () => {
+  // 0. Static token from env (useful for live server or static auth)
+  if (process.env.NEXT_PUBLIC_STATIC_AUTH_TOKEN) {
+    const envToken = process.env.NEXT_PUBLIC_STATIC_AUTH_TOKEN.trim();
+    if (envToken.length > 10) return envToken;
+  }
+
   if (typeof window === "undefined") return null;
   try {
     // 1. Search for any key starting with "twl_token"
